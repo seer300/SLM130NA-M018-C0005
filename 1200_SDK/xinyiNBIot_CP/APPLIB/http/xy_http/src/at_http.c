@@ -3,6 +3,7 @@
 #include "http_opts.h"
 #include "xy_utils.h"
 #include "xy_at_api.h"
+#include "at_socket_api.h"
 
 /*******************************************************************************
  *                             Macro definitions                               *
@@ -695,6 +696,7 @@ void http_send_thread(void* argument)
 	    http_cert_pk_clear(http_context_ref); //由于server_cert, client_cert与client_pk是进行动态申请内存，且较大，所以需要连接结束以后，及时释放相关内存；
 		if (ret != HTTP_SUCCESS) {
 			http_send_report(http_context_ref, ret);
+			call_socket_delay(SOCK_CANCEL_CHECK,0,0,0);
 			httpclient_clse(http_context_ref->client);
 			http_context_ref->status = HTTPSTAT_CLOSED;
 			goto exit;
@@ -705,12 +707,14 @@ void http_send_thread(void* argument)
 	ret = httpclient_send(http_context_ref->client, http_context_ref->url, http_context_ref->client->method, http_context_ref->client_data);
 	if (ret != HTTP_SUCCESS) {
 		http_send_report(http_context_ref, ret);
+		call_socket_delay(SOCK_CANCEL_CHECK,0,0,0);
 		httpclient_clse(http_context_ref->client);
 		http_context_ref->status = HTTPSTAT_CLOSED;
 		goto exit;
 	}
 
 	http_send_report(http_context_ref, ret);
+	call_socket_delay(SOCK_CANCEL_CHECK,0,0,0);
 
 	http_context_ref->status = HTTPSTAT_RECEDATA;
 	
@@ -727,6 +731,7 @@ exit:
 	http_context_ref->http_send_thread = NULL;
 	osThreadExit();
 }
+
 
 //AT+HTTPCREATE=<host>[,<username>,<password>]
 int at_http_create(char *at_buf, char **rsp_cmd)
@@ -994,6 +999,8 @@ int at_http_send(char *at_buf, char **rsp_cmd)
 	http_context_ref->client->method = method;
 	http_url_concat(http_context_ref, path);
 	
+	call_socket_delay(SOCK_HTTP_CTL_TIMEOUT, http_id,SOCKT_TIMEOUT_10S,0);
+
 	task_attr.name = "http_send_thread";
 	task_attr.priority = osPriorityNormal1;
 	task_attr.stack_size = osStackShared;
@@ -1007,6 +1014,23 @@ send_error:
 	snprintf(*rsp_cmd, 12, "\r\nERROR\r\n");
 	xy_free(path);
 	return AT_END;
+}
+
+extern void http_ctl_timeout_callback(int socket_id)
+{
+	http_context_reference_t *http_context_ref = NULL;
+	
+	http_context_ref = g_http_context_refs[socket_id];
+	if (http_context_ref == NULL) {
+		return;
+	} 
+
+	if (http_context_ref->client == NULL) {
+		return;
+	}
+
+	close(http_context_ref->client->socket);
+
 }
 
 //AT+HTTPCLOSE=<id>

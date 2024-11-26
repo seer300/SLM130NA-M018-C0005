@@ -221,13 +221,13 @@ unsigned char AtcAp_CMEE_LNB_Process(unsigned char *pEventBuffer)
     {
         g_softap_fac_nv->cmee_mode = pCmeeCnf->ucErrMod;
 #ifdef SINGLE_CORE
-    #if(VER_BC95 && Custom_09)
+    #if (VER_BC95)
         g_softap_var_nv->cmee_mode = g_softap_fac_nv->cmee_mode;
     #endif
         set_cmee_mode(g_softap_fac_nv->cmee_mode);
 #endif
 
-#if !(VER_BC95 && Custom_09)
+#if (VER_BC95)
         SAVE_FAC_PARAM(cmee_mode);
 #endif
     }
@@ -805,7 +805,7 @@ unsigned char AtcAp_CRSM_T_LNB_Process(unsigned char *pEventBuffer)
 unsigned char AtcAp_CSCON_T_LNB_Process(unsigned char *pEventBuffer)
 {
     Unused_para_ATCAP(pEventBuffer);
-#if Custom_09 || VER_BC25
+#if Custom_09 || VER_BC95
     g_AtcApInfo.stAtRspInfo.usRspLen = AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf,
         (const unsigned char *)"\r\n+CSCON:(0,1)\r\n");
 #else
@@ -1095,7 +1095,7 @@ unsigned char AtcAp_CNMPSD_T_LNB_Process(unsigned char *pEventBuffer)
 unsigned char AtcAp_CPINR_T_LNB_Process(unsigned char *pEventBuffer)
 {
     Unused_para_ATCAP(pEventBuffer);
-    AtcAp_StrPrintf_AtcRspBuf("\r\n+CPINR:(SIM PIN,SIM PUK,SIM PIN2,SIM PUK2)\r\n");
+    AtcAp_StrPrintf_AtcRspBuf("\r\n+CPINR:(SIM PIN,SIM PUK)\r\n");
     AtcAp_SendDataInd();
     
     AtcAp_SendOkRsp();
@@ -2400,13 +2400,26 @@ void AtcAp_MsgProc_NBAND_T_Cnf(unsigned char* pRecvMsg)
     usOffset    = g_AtcApInfo.stAtRspInfo.usRspLen;
     if (ucBandCount > 0)
     {
-        for( i = 0; i < (ucBandCount-1); i++ )
+        for( i = 0; i < ucBandCount; i++ )
         {
-            g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)"%d,", aucBandInfo[i]);
-            usOffset    = g_AtcApInfo.stAtRspInfo.usRspLen;
+            if (pNbandTCnf->stSupportBandList.aucSuppBand[i] == 1 ||
+                pNbandTCnf->stSupportBandList.aucSuppBand[i] == 20 ||
+                pNbandTCnf->stSupportBandList.aucSuppBand[i] == 28) {
+                // ݲ֧ Ƶ 12028Ӧȥ
+                continue;
+            }
+            if ( i != 0 )
+            {
+                g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)",");
+                usOffset = g_AtcApInfo.stAtRspInfo.usRspLen;
+            }
+
+            g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)"%d", aucBandInfo[i]);
+            usOffset = g_AtcApInfo.stAtRspInfo.usRspLen;
         }
     
-        g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)"%d)\r\n", aucBandInfo[i]);
+        // g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)"%d)\r\n", aucBandInfo[i]);
+        g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)")\r\n");
     }
     else
     {
@@ -3470,10 +3483,10 @@ void AtcAp_MsgProc_SIMST_Ind(unsigned char* pRecvMsg)
         }
     }
 #elif !Custom_09
-    ATC_MSG_SIMST_IND_STRU*    pSimstInd = (ATC_MSG_SIMST_IND_STRU*)pRecvMsg;
+  //  ATC_MSG_SIMST_IND_STRU*    pSimstInd = (ATC_MSG_SIMST_IND_STRU*)pRecvMsg;
 
-    AtcAp_StrPrintf_AtcRspBuf((const char *)"\r\n^SIMST:%d\r\n", pSimstInd->ucSimStatus);
-    AtcAp_SendDataInd();
+  //  AtcAp_StrPrintf_AtcRspBuf((const char *)"\r\n^SIMST:%d\r\n", pSimstInd->ucSimStatus);
+  //  AtcAp_SendDataInd();
 #endif
 }
 
@@ -3584,6 +3597,7 @@ void AtcAp_MsgProc_CPINR_Cnf(unsigned char* pRecvMsg)
         {
             AtcAp_StrPrintf_AtcRspBuf("+CPINR:%s,%d,10\r\n", "SIM PUK", pPinRetriesCnf->aPinRetires[index].ucRetriesNum);
         }
+        /*
         if(pPinRetriesCnf->aPinRetires[index].ucPinType == D_ATC_CPINR_TYPE_PIN2)
         {
             AtcAp_StrPrintf_AtcRspBuf("+CPINR:%s,%d,3\r\n", "SIM PIN2", pPinRetriesCnf->aPinRetires[index].ucRetriesNum);
@@ -3592,6 +3606,7 @@ void AtcAp_MsgProc_CPINR_Cnf(unsigned char* pRecvMsg)
         {
             AtcAp_StrPrintf_AtcRspBuf("+CPINR:%s,%d,10\r\n", "SIM PUK2", pPinRetriesCnf->aPinRetires[index].ucRetriesNum);
         }
+        */
     }
     AtcAp_SendDataInd();
 }
@@ -3653,7 +3668,7 @@ void AtcAp_MsgProc_CGEV_Ind(unsigned char* pRecvMsg)
 {
     ATC_MSG_CGEV_IND_STRU*    pCgevInd = (ATC_MSG_CGEV_IND_STRU*)pRecvMsg;
 
-    if(pCgevInd->ucCgerepMode == 0)
+   // if(pCgevInd->ucCgerepMode == 0)
     {
         return;
     }

@@ -20,8 +20,9 @@
 
 typedef enum
 {
-	LED_SLOWFLICKER = 0,   //慢速闪烁
-    LED_FASTFLICKER,	   //快速闪烁
+	LED_ON = 0,
+	LED_SLOWFLICKER,   //慢速闪烁
+    LED_FASTFLICKER,   //快速闪烁
     LED_STOP, 
 } net_led_status;
 
@@ -35,11 +36,28 @@ struct led_msg {
 	int		msg_id;
 };
 static uint8_t g_ledcalback_count = 0;
-static uint16_t g_ledon_time, g_ledoff_time;
+static uint16_t g_ledon_time, g_ledoff_time,g_led_on_only = 0;
 
+
+void logT(int id,char *msg)
+{
+    char* debug = xy_malloc(128);
+	
+	memset(debug,0,128);
+    snprintf(debug, 128, "\r\nlog:%s/%d\r\n",msg,id);
+    write_to_at_uart(debug, strlen(debug));
+    xy_free(debug);
+}
 
 void net_led_timer_calback(void)//net_led_timer calback
 {	
+	if (g_led_on_only==1) {
+		//长亮
+		GPIO_WritePin(g_softap_fac_nv->led_pin, SET);
+		osTimerStart(net_led_timer, g_ledon_time);
+		return;
+	}
+
 	g_ledcalback_count++;	
 	if(g_ledcalback_count%2)
 	{
@@ -126,7 +144,7 @@ void net_led_task()
 
 		xy_printf(0,XYAPP, WARN_LOG, "led net is %d\r\n",rcv_msg->msg_id);
 
-	
+		
 		switch (rcv_msg->msg_id)
 		{
 		case LED_SLOWFLICKER:
@@ -138,7 +156,10 @@ void net_led_task()
 			g_ledon_time=64; g_ledoff_time=800;
 			net_led_light();
 			break;
-
+		case LED_ON:
+			g_led_on_only = 1;
+			net_led_light();
+			break;
 		case LED_STOP:
 		default:
 			net_led_stop();
@@ -159,17 +180,18 @@ void led_urc_CGEV_Callback(unsigned long eventId, void *param, int paramLen)
 	xy_assert(paramLen == sizeof(ATC_MSG_CGEV_IND_STRU));
 	ATC_MSG_CGEV_IND_STRU *cgev_urc = (ATC_MSG_CGEV_IND_STRU*)param;
 
+	//logT(cgev_urc->ucCgevEventId,"CGEV in");
 	switch(cgev_urc->ucCgevEventId)
 	{
 		case D_ATC_CGEV_ME_PDN_ACT:   
 		case D_ATC_CGEV_IS:
-			write_led_pro(LED_SLOWFLICKER);
+			write_led_pro(LED_FASTFLICKER);
 			break;
 
 		case D_ATC_CGEV_NW_PDN_DEACT:  
 		case D_ATC_CGEV_ME_PDN_DEACT:  
 		case D_ATC_CGEV_OOS:
-			write_led_pro(LED_FASTFLICKER);
+			write_led_pro(LED_STOP);
 			break;
 
 		default:
@@ -184,10 +206,18 @@ void led_urc_CSCON_Callback(unsigned long eventId, void *param, int paramLen)
 	xy_assert(paramLen == sizeof(ATC_MSG_CSCON_IND_STRU));
 	ATC_MSG_CSCON_IND_STRU *cscon_urc = (ATC_MSG_CSCON_IND_STRU*)param;
 
-	if(cscon_urc->stPara.ucMode == 1)
+	/*
+		信令状态: 1连接,0空闲
+	 */
+	//logT(cscon_urc->stPara.ucMode,"CSCON in");
+
+	if(cscon_urc->stPara.ucMode == 1) {
+		write_led_pro(LED_ON);
+		g_led_on_only = 1;
+	}else {
 		write_led_pro(LED_SLOWFLICKER);
-	else
-		write_led_pro(LED_STOP);
+		g_led_on_only = 0;
+	}
 }
 
 

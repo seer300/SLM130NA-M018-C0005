@@ -95,11 +95,11 @@ const struct at_serv_proc_e at_basic_req[] = {
 	{"ZADC", at_ADC_req},
 
 	// 基础平台(主流模组和芯翼都有的指令)
-	{"ATI", at_ATI_req},
+	{"ATI", at_ATI_req},	
 	{"ATE", at_ECHOMODE_req},
 	{"CGMI", at_CGMI_req},
 	{"CGMM", at_CGMM_req},
-	{"CGMR", at_CMVER_req},
+	{"CGMR", at_CGMR_req},
 	{"NITZ", at_NITZ_req},
 	{"NPSMR", at_NPSMR_req},
 	{"QGMR", at_QGMR_req},
@@ -107,6 +107,9 @@ const struct at_serv_proc_e at_basic_req[] = {
 	{"XYRAI", at_XYRAI_req},
 	{"CPINFO", at_CPINFO_req},
 	{"CMEE", at_CMEE_req},
+	{"SGSW", at_SGSW_req},
+	{"NGT3412",at_NGT3412_req},
+
 #if VER_BC25
 	{"AT&W", at_ANDW_req},
 	{"QPOWD", at_QPOWD_req},
@@ -378,6 +381,8 @@ const struct at_serv_proc_e at_basic_req[] = {
 	{"HTTPCLOSE", at_http_close},
 	{"HTTPFOTA", at_http_fota},
 #endif
+	{"NGSEARFCN", at_ngsearfcn_req},
+	{"MGSLEEP", at_mgsleep_req},
 	{0, 0} // can not delete!!!
 };
 struct at_serv_proc_e *g_at_basic_req = at_basic_req;

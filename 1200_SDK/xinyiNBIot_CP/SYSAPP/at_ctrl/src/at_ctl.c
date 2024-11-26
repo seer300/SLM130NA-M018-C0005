@@ -310,7 +310,7 @@ void at_ctl(void)
 	void *rcv_msg = NULL;
 	at_msg_t *msg = NULL;
 
-#if VER_BC95
+#if 0// VER_BC95
 	extern int g_npsmr_status;
 
 	//BC95V200对标,下列参数深睡保存掉电不保存,设置后不写fac_nv,用易变NV存储
@@ -533,6 +533,21 @@ bool at_write_by_ctx(at_context_t *ctx, void *buf, int size)
 	return ret;
 }
 
+static char RebootCauseNameItem[][32] = {
+	"SECURITY_PMU_POWER_ON_RESET",  //正常断电上电动作,含OPENCPU的stop_CP场景
+	"SECURITY_RESET_PIN",           //外部通过RESET-PIN执行的芯片硬复位
+	"APPLICATION_AT",               //AT+NRB触发的软重启
+	"APPLICATION_RTC",              //RTC触发的深睡唤醒
+	"SECURITY_EXTERNAL_PIN",        //外部LPUART唤醒，通常为AT命令唤醒
+	"SECURITY_WATCHDOG",            //AP_WDT/UTC_WDT复位，不包括CP核的看门狗复位
+	"SECURITY_FOTA_UPGRADE",        //FOTA升级重启
+	"APPLICATION_SYSRESETREQ",      //AT+RESET触发的软重启
+	"SECURITY_GLOBAL_RESET",        //CP核看门狗 + xy_Soc_Reset + ASSERT异常断言 + SVD
+	"SECURITY_SOFT_RESET",          //用户调用xy_Soft_Reset触发的软重启
+	"SECURITY_WAKEUP_DSLEEP",       //除了RTC和LPUART之外的其他深睡唤醒，如WAKUP-PIN唤醒等
+	"SECURITY_RESET_UNKNOWN"       //未知的异常上电，一般为硬件故障
+};
+
 /*系统深睡URC参加Sys_Down_URC*/
 void Sys_Up_URC_default()
 {
@@ -541,7 +556,8 @@ void Sys_Up_URC_default()
 	if (!is_urc_drop())
 	{
 		at_str = xy_malloc(64);
-		snprintf(at_str, 64, "\r\n+POWERON:%ld\r\n", at_get_power_on());
+		//snprintf(at_str, 64, "\r\n+REBOOT_CAUSE_%ld\r\n", at_get_power_on());
+		snprintf(at_str, 64, "\r\nREBOOT_CAUSE_%s\r\n", RebootCauseNameItem[at_get_power_on()]);
 		send_urc_to_ext_NoCache(at_str, strlen(at_str));
 		xy_free(at_str);
 	}

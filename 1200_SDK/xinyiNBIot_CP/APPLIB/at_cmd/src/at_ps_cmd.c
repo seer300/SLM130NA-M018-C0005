@@ -113,9 +113,9 @@ int at_CMEE_req(char *at_buf, char **prsp_cmd)
 			return ATERR_PARAM_INVALID;
 		}
 
-#if VER_BC95 || VER_BC25
+#if VER_BC25
 		g_softap_var_nv->cmee_mode = cmee_mode;
-#else
+#elif VER_BC95
 		g_softap_fac_nv->cmee_mode = cmee_mode;
 		SAVE_FAC_PARAM(cmee_mode);
 #endif
@@ -545,6 +545,38 @@ END:
 		*prsp_cmd = AT_ERR_BUILD(ATERR_PARAM_INVALID);
 	}
 
+	return AT_END;
+}
+int at_ngsearfcn_req(char *at_buf,char **prsp_cmd)
+{
+	ATC_MSG_NUESTATS_CNF_STRU* pNueStatsCnf;
+	unsigned char              aucSelectPlmn[7] = { 0 };
+
+	if(g_req_type == AT_CMD_ACTIVE)
+	{
+		pNueStatsCnf = (ATC_MSG_NUESTATS_CNF_STRU*)AtcAp_Malloc(sizeof(ATC_MSG_NUESTATS_CNF_STRU));
+		if(ATC_AP_TRUE != xy_atc_interface_call("AT+NUESTATS=RADIO\r\n", (func_AppInterfaceCallback)NULL, (void*)pNueStatsCnf))
+		{
+			xy_free(pNueStatsCnf);
+			return ATC_AP_FALSE;
+		}
+		
+    	if((ATC_NUESTATS_TYPE_RADIO == pNueStatsCnf->type) && (0xFFFFFFFF != pNueStatsCnf->stRadio.current_plmn))
+    	{
+			*prsp_cmd = xy_malloc(256);
+			AtcAp_IntegerToPlmn(pNueStatsCnf->stRadio.current_plmn, aucSelectPlmn);
+			sprintf(*prsp_cmd, "\r\n+NGSEARFCN:%s,%d\r\n\r\nOK\r\n", 
+					aucSelectPlmn,pNueStatsCnf->stRadio.last_earfcn_value);
+		} else {
+			*prsp_cmd = AT_ERR_BUILD(ATERR_NOT_NET_CONNECT);
+		}
+	}else if(g_req_type == AT_CMD_TEST) {
+		*prsp_cmd = xy_malloc(256);
+		sprintf(*prsp_cmd, "\r\nOK\r\n");
+	} else {
+		*prsp_cmd = AT_ERR_BUILD(ATERR_PARAM_INVALID);
+	}
+	
 	return AT_END;
 }
 

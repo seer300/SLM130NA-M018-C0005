@@ -1128,7 +1128,7 @@ lwip_netconn_do_delconn(void *m)
         ((state == NETCONN_CONNECT) && !IN_NONBLOCKING_CONNECT(msg->conn))) {
       /* close requested, abort running write/connect */
       sys_sem_t *op_completed_sem;
-      LWIP_ASSERT("msg->conn->current_msg != NULL", msg->conn->current_msg != NULL);
+      //LWIP_ASSERT("msg->conn->current_msg != NULL", msg->conn->current_msg != NULL);
       op_completed_sem = LWIP_API_MSG_SEM(msg->conn->current_msg);
       msg->conn->current_msg->err = ERR_CLSD;
       msg->conn->current_msg = NULL;
@@ -1147,8 +1147,8 @@ lwip_netconn_do_delconn(void *m)
   } else
 #endif /* LWIP_NETCONN_FULLDUPLEX */
   {
-    LWIP_ASSERT("blocking connect in progress",
-                (state != NETCONN_CONNECT) || IN_NONBLOCKING_CONNECT(msg->conn));
+    //LWIP_ASSERT("blocking connect in progress",
+    //            (state != NETCONN_CONNECT) || IN_NONBLOCKING_CONNECT(msg->conn));
     msg->err = ERR_OK;
 #if LWIP_NETCONN_FULLDUPLEX
     /* Mark mboxes invalid */

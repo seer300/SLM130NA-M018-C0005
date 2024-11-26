@@ -161,11 +161,11 @@ void nv_restore()
 		{
 			restore_RTC_list();
 		}
-#if VER_BC95
+#if 0//VER_BC95
 		cmee_mode = g_softap_var_nv->cmee_mode;
 #endif
 
-#if VER_BC25
+#if 0//VER_BC25
 		cmee_mode = g_softap_var_nv->cmee_mode;
 		echo_mode = g_softap_var_nv->echo_mode;
 #endif
@@ -183,12 +183,12 @@ void nv_restore()
 
 		//清除CP侧RTC链表
 		memset((uint8_t *)BAK_MEM_CP_RTC_BASE, 0, BAK_MEM_CP_RTC_LEN);
-#if VER_BC95
+#if 0//VER_BC95
 		g_softap_var_nv->cmee_mode = g_softap_fac_nv->cmee_mode;
 		g_softap_var_nv->at_parity = g_softap_fac_nv->at_parity;
 #endif
 
-#if VER_BC25
+#if 0//VER_BC25
 		g_softap_var_nv->echo_mode = g_softap_fac_nv->echo_mode;
 		g_softap_var_nv->cmee_mode = g_softap_fac_nv->cmee_mode;
 		g_softap_var_nv->wakup_URC = g_softap_fac_nv->wakup_URC;

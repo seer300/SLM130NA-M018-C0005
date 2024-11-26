@@ -12,7 +12,7 @@
 #include "low_power.h"
 #include "gpio.h"
 #include "adc.h"
-
+//#include "hal_adc.h"
 /**
   * @brief 芯片当前信息查询
   * @param  at_buf:
@@ -70,28 +70,28 @@ int at_CHIPINFO_BC95_req(char *at_buf, char **prsp_cmd)
 int at_ADC_BC95_req(char *at_buf, char **prsp_cmd)
 {
 	int adc_Mode = 0;
-	if (g_req_type == AT_CMD_QUERY)
-	{
-		goto adcprocess;
-	}
-#if (AT_CUT != 1)
-	else if (g_req_type == AT_CMD_TEST)
+	int16_t voltageADC;
+
+
+	if (g_req_type == AT_CMD_TEST)
 	{
 		*prsp_cmd = xy_malloc(30);
-		snprintf(*prsp_cmd, 30, "+QADC:(%d)", 0);
+		snprintf(*prsp_cmd, 30, "+QADC:(0,1)");
 	}
-#endif
 	else if (g_req_type == AT_CMD_REQ)
 	{
-		if (at_parse_param("%d(0-0)", at_buf, &adc_Mode) != AT_OK)
+		if (at_parse_param("%d(0-1)", at_buf, &adc_Mode) != AT_OK)
 			return ATERR_PARAM_INVALID;
-
-		adcprocess:
-		{
-			uint16_t cal_vol = xy_getVbat();
-			*prsp_cmd = xy_malloc(25);
-			snprintf(*prsp_cmd, 25, "+QADC:%d,%d", adc_Mode, (cal_vol > xy_getVbat())? xy_getVbat() : cal_vol);
+		
+		if (adc_Mode == 0) {
+			voltageADC = xy_getVbat();
+		} else if (adc_Mode == 1) {
+			voltageADC =  get_adc_value_incpcore(ADC_AUX_ADC2);
+		} else {
+			return ATERR_PARAM_INVALID;
 		}
+		*prsp_cmd = xy_malloc(25);
+		snprintf(*prsp_cmd, 25, "+QADC:%d,%d",adc_Mode,voltageADC);
 	}
 
 	return AT_END;
@@ -125,7 +125,7 @@ int at_LED_BC95_req(char *at_buf, char **prsp_cmd)
 		}
 		else//打开LED网络指示灯
 		{
-			g_softap_fac_nv->led_pin = GPIO_PAD_NUM_9; 
+			g_softap_fac_nv->led_pin = GPIO_PAD_NUM_5; 
 			SAVE_FAC_PARAM(led_pin);
 
 			//xy_Soft_Reset(SOFT_RB_BY_NRB);

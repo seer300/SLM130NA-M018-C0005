@@ -78,7 +78,7 @@ void at_sock_recv_thread(void)
 		{
 			if (errno == EBADF)
 			{
-				xy_assert(0);
+				//xy_assert(0);
 			}
 			else
 			{

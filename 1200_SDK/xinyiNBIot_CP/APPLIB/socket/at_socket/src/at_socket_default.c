@@ -678,6 +678,11 @@ int at_SOCKSTR_Default_URC(int id, uint16_t seqno, int8_t state)
     snprintf(report, 32, "+NSOSTR:%d,%d,%d", id, seqno, state);
     send_urc_to_ext(report, strlen(report));
     xy_free(report);
+	
+	if (state == 1) {
+		call_socket_delay(SOCK_CANCEL_CHECK,0,SOCKT_TIMEOUT_30S,0);
+	}
+
     return XY_OK;
 }
 
@@ -688,6 +693,9 @@ void at_SOCKRFNMI_Default_URC(void *arg)
 	snprintf(urc_str, 48, "+NSONMI:%d,%d", id, socket_get_remaining_buffer_len(id));
 	send_urc_to_ext(urc_str, strlen(urc_str));
 	xy_free(urc_str);
+	
+	
+
 	osThreadExit();
 }
 

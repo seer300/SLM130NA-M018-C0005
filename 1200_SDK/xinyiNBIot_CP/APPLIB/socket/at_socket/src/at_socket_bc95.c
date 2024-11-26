@@ -98,6 +98,8 @@ int at_SOCKCFG_BC95_req(char *at_buf, char **prsp_cmd)
 
 int at_SOCKCONN_BC95_req(char *at_buf, char **prsp_cmd)
 {
+	//char *report_buf = xy_malloc(32);
+
 	if (g_req_type == AT_CMD_REQ)
 	{
 		char remote_ip[XY_IPADDR_STRLEN_MAX] = {0};
@@ -120,18 +122,26 @@ int at_SOCKCONN_BC95_req(char *at_buf, char **prsp_cmd)
 
 		param.remote_ip = remote_ip;
 
+		//snprintf(report_buf, 32, "\r\nOK\r\n");
+		//write_to_at_uart(report_buf,strlen(report_buf));
+		//memset(report_buf,0,32);
+
+		call_socket_delay(SOCK_TCP_CTL_TIMEOUT,param.id,SOCKT_TIMEOUT_30S,0);
+
 		if (socket_connect(&param) != XY_OK)
 		{
+			call_socket_delay(SOCK_CANCEL_CHECK,param.id,SOCKT_TIMEOUT_30S,0);
+			//xy_free(report_buf);
 			return ATERR_NOT_NET_CONNECT;
 		}
-
-		if (g_softap_fac_nv->sock_async != 0)
-		{
-			*prsp_cmd = xy_malloc(48);
-			snprintf(*prsp_cmd, 48, "\r\nOK\r\n\r\n+NSOCO:%d\r\n", param.id);
-		}
-
-		return AT_END;
+		call_socket_delay(SOCK_CANCEL_CHECK,param.id,SOCKT_TIMEOUT_30S,0);
+		
+		//sprintf(report_buf, "\r\n+NSOCO:%d\r\n",param.id);
+		//write_to_uart_delay(report_buf);
+		//write_to_at_uart(report_buf, strlen(report_buf));
+		
+		//xy_free(report_buf);
+		return AT_END;//AT_END;AT_ASYN;	
 	}
 	else
 	{
@@ -167,6 +177,9 @@ int at_SOCKSEND_BC95_req(char *at_buf, char **prsp_cmd)
 		// 标志转换 0x100->0, 0x200->1, 0x400->2, 未设置时置为0
 		param.rai_type = (int8_t)((rai_flag == 0) ? RAI_NULL : ((rai_flag >> 9) & 0xFF));
 
+		if (param.sequence != 0) {
+			call_socket_delay(SOCK_TCP_CTL_TIMEOUT,param.id,SOCKT_TIMEOUT_30S,param.sequence);
+		}
 		if (socket_send(&param) != XY_OK)
 		{
 			return ATERR_PARAM_INVALID;
@@ -210,7 +223,9 @@ int at_SOCKSENT_BC95_req(char *at_buf, char **prsp_cmd)
 
 		param.remote_ip = remote_addr;
 		param.udp_connectd = 0;
-
+		if (param.sequence != 0) {
+			//call_socket_delay(SOCK_UDP_CTL_TIMEOUT,param.id,SOCKT_TIMEOUT_30S,param.sequence);
+		}
 		if (socket_send(&param) != XY_OK)
 		{
 			return ATERR_PARAM_INVALID;
@@ -259,6 +274,9 @@ int at_SOCKSENTF_BC95_req(char *at_buf, char **prsp_cmd)
 		param.remote_ip = remote_addr;
 		param.udp_connectd = 0;
 
+		if (param.sequence != 0) {
+			//call_socket_delay(SOCK_UDP_CTL_TIMEOUT,param.id,SOCKT_TIMEOUT_30S,param.sequence);
+		}
 		if (socket_send(&param) != XY_OK)
 		{
 			return ATERR_PARAM_INVALID;
@@ -537,6 +555,9 @@ int at_SOCKSENDEX_BC95_req(char *at_buf, char **prsp_cmd)
 
 		param.rai_type = (int8_t)((rai_flag == 0) ? RAI_NULL : ((rai_flag >> 9) & 0xFF));
 
+		if (param.sequence != 0) {
+			call_socket_delay(SOCK_TCP_CTL_TIMEOUT,param.id,SOCKT_TIMEOUT_30S,param.sequence);
+		}
         /* 透传模式 */
         if (is_passthr_mode == 1)
         {
@@ -554,6 +575,7 @@ int at_SOCKSENDEX_BC95_req(char *at_buf, char **prsp_cmd)
 			}
 		}
 
+		
         if (socket_send(&param) != XY_OK)
 		{
 			return ATERR_PARAM_INVALID;
@@ -618,6 +640,11 @@ int at_SOCKSENTEX_BC95_req(char *at_buf, char **prsp_cmd)
 
         param.remote_ip = remote_addr;
 		param.udp_connectd = 0;
+		
+		if (param.sequence != 0) {
+			call_socket_delay(SOCK_TCP_CTL_TIMEOUT,param.id,SOCKT_TIMEOUT_30S,param.sequence);
+		}
+
         /* 透传模式 */
         if (is_passthr_mode == 1)
         {
@@ -701,6 +728,11 @@ int at_SOCKSENTFEX_BC95_req(char *at_buf, char **prsp_cmd)
 
         param.remote_ip = remote_addr;
 		param.udp_connectd = 0;
+
+		if (param.sequence != 0) {
+			call_socket_delay(SOCK_TCP_CTL_TIMEOUT,param.id,SOCKT_TIMEOUT_30S,param.sequence);
+		}
+
 		/* 透传模式 */
         if (is_passthr_mode == 1)
         {

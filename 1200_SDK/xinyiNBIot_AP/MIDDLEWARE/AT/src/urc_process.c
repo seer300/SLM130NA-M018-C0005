@@ -113,9 +113,9 @@ const urc_regist_t urc_reg_list[] = {
 	{"NSONMI", URC_NSONMI_Proc},
 	{"QMTRECV", URC_QMTRECV_Proc},
 	{"QMTSTAT", URC_QMTSTAT_Proc},
-	{"SIMST", URC_SIMST_Proc},
+	//{"SIMST", URC_SIMST_Proc},
 	{"CTLWRECV", URC_CTLWRECV_Proc},
-	{"POWERDOWN", URC_CP_SYSDOWN_Proc},
+	//{"POWERDOWN", URC_CP_SYSDOWN_Proc},
 	{0,0}
 };
 

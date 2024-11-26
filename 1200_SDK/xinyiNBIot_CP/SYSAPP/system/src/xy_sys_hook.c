@@ -42,7 +42,7 @@ void DeepSleep_Before_Regist(Sys_Func_Cb pfun)
 
 void regist_system_callback(void)
 {
-#if VER_BC95
+#if 0//VER_BC95
 	Sys_Up_URC_Regist(Sys_Up_URC_95);
 	Sys_Down_URC_Regist(Sys_Down_URC_95);
 #elif VER_260Y

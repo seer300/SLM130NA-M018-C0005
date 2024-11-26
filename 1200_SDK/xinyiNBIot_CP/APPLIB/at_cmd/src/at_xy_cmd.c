@@ -24,6 +24,8 @@
 #include "xy_rtc_api.h"
 #include "diag_transmit_port.h"
 #include "mpu_protect.h"
+#include "atc_ps_def.h"
+#include "atc_ps.h"
 
 #if TELECOM_VER
 #include "cdp_backup.h"
@@ -841,6 +843,50 @@ int at_NV_req(char *at_buf, char **prsp_cmd)
 		return  (ATERR_PARAM_INVALID);
 	return AT_END;
 }
+
+
+int at_mgsleep_req(char *at_buf,char **prsp_cmd)
+{
+	char cmd[10] = {0};
+
+	if (g_req_type == AT_CMD_REQ)
+	{
+		if (at_parse_param("%10s,", at_buf, cmd) != AT_OK)
+		{
+			return  (ATERR_PARAM_INVALID);
+		}
+		if (!strcmp(cmd, "enable")) {
+			g_softap_fac_nv->deepsleep_enable = 1;
+			SAVE_FAC_PARAM(deepsleep_enable);
+			
+			*prsp_cmd = xy_malloc(56);
+			sprintf(*prsp_cmd, "\r\n\r\nOK\r\n");
+
+		} else if (!strcmp(cmd, "disable")) {
+			g_softap_fac_nv->deepsleep_enable = 0;
+			SAVE_FAC_PARAM(deepsleep_enable);
+			*prsp_cmd = xy_malloc(56);
+			sprintf(*prsp_cmd, "\r\n\r\nOK\r\n");
+
+		} else {
+			return  (ATERR_PARAM_INVALID);
+		}
+	} else 	if (g_req_type == AT_CMD_QUERY) {
+		*prsp_cmd = xy_malloc(56);
+		if (g_softap_fac_nv->deepsleep_enable == 1) {
+			sprintf(*prsp_cmd, "\r\n+MGSLEEP: enable\r\n\r\nOK\r\n");
+		} else {
+			sprintf(*prsp_cmd, "\r\n+MGSLEEP: disable\r\n\r\nOK\r\n");
+		}
+	} else 	if (g_req_type == AT_CMD_TEST) {
+			*prsp_cmd = xy_malloc(56);
+			sprintf(*prsp_cmd, "\r\n+MGSLEEP: <sleepmode>\r\n\r\nOK\r\n");
+	} else {
+		return  (ATERR_PARAM_INVALID);
+	}
+	return AT_END;
+}
+
 //获取当前CP核内存使用
 int at_NUESTATS_req(char* at_buf, char** prsp_cmd)
 {
@@ -858,19 +904,19 @@ int at_NUESTATS_req(char* at_buf, char** prsp_cmd)
 	    *prsp_cmd = xy_malloc(400);
 
 		uint32_t str_len = 0;
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Heap Size:%d\r\n", cmd, xHeapStats.HeapSize);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Heap Size:%d\r\n", cmd, xHeapStats.HeapSize);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Heap Peak Used:%d\r\n", cmd, xHeapStats.HeapSize - xHeapStats.MinimumEverFreeBytesRemaining);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Heap Peak Used:%d\r\n", cmd, xHeapStats.HeapSize - xHeapStats.MinimumEverFreeBytesRemaining);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Current Allocated:%d\r\n", cmd, xHeapStats.AllocatedHeapSize);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Current Allocated:%d\r\n", cmd, xHeapStats.AllocatedHeapSize);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Total Free:%d\r\n", cmd, xHeapStats.AvailableHeapSize);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Total Free:%d\r\n", cmd, xHeapStats.AvailableHeapSize);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Max Free:%d\r\n", cmd, xHeapStats.MaxSizeFreeBlock);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Max Free:%d\r\n", cmd, xHeapStats.MaxSizeFreeBlock);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Num Allocs:%d\r\n", cmd, xHeapStats.AllocatedBlockNum);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Num Allocs:%d\r\n", cmd, xHeapStats.AllocatedBlockNum);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Num Frees:%d\r\n", cmd, xHeapStats.FreeBlockNum);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Num Frees:%d\r\n", cmd, xHeapStats.FreeBlockNum);
 
 		str_len += sprintf(*prsp_cmd + str_len, "\r\nOK\r\n");
 	}
@@ -885,17 +931,17 @@ int at_NUESTATS_req(char* at_buf, char** prsp_cmd)
 	    *prsp_cmd = xy_malloc(400);
 
 		uint32_t str_len = 0;
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Total Flash Space:%#x\r\n", cmd, &__Flash_Total);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Total Flash Space:%#x\r\n", cmd, &__Flash_Total);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Flash Used:%#x\r\n", cmd, &__Flash_Used);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Flash Used:%#x\r\n", cmd, &__Flash_Used);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Flash Remaining:%#x\r\n", cmd, &__Flash_Remain);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Flash Remaining:%#x\r\n", cmd, &__Flash_Remain);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Total Ram Space:%#x\r\n", cmd, &__Ram_Total);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Total Ram Space:%#x\r\n", cmd, &__Ram_Total);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Ram Used:%#x\r\n", cmd, &__Ram_Used);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Ram Used:%#x\r\n", cmd, &__Ram_Used);
 
-		str_len += sprintf(*prsp_cmd + str_len, "\r\n+NUESTATS:%s,Ram Remaining:%#x\r\n", cmd, &__Ram_Remain);
+		str_len += sprintf(*prsp_cmd + str_len, "\r\nNUESTATS:%s,Ram Remaining:%#x\r\n", cmd, &__Ram_Remain);
 
 		str_len += sprintf(*prsp_cmd + str_len, "\r\nOK\r\n");
 	}
@@ -977,76 +1023,18 @@ int at_HVER_req(char *at_buf, char **prsp_cmd)
 //AT+CGMM=<verval>
 int at_CGMM_req(char *at_buf, char **prsp_cmd)
 {
-	if (g_req_type == AT_CMD_REQ)
+	if(g_req_type==AT_CMD_ACTIVE)
 	{
-		char *modul = xy_malloc(12);
-		char *modul_ver_char = xy_malloc(20);
-		char *modul_ver_nv = xy_malloc(20);
-		char *end_str = NULL;
+		*prsp_cmd = xy_malloc(128);
 
-		memset(modul, 0, 12);
-		memset(modul_ver_char, 0, 20);
-		memset(modul_ver_nv, 0, 20);
-
-		if (at_parse_param("%12s,", at_buf, modul) != AT_OK)
-		{
-			xy_free(modul);
-			xy_free(modul_ver_char);
-			xy_free(modul_ver_nv);
-			return ATERR_PARAM_INVALID;
-		}
-
-		memcpy(modul_ver_nv, g_softap_fac_nv->modul_ver, 19);
-		end_str = strchr(modul_ver_nv, '-');
-
-		if (end_str != NULL)
-			memcpy(modul_ver_char, modul_ver_nv, (int)(end_str - modul_ver_nv) + 1);
-		else
-			memcpy(modul_ver_char, "-", 1);
-
-		sprintf(modul_ver_char + strlen(modul_ver_char), "%s", modul);
-
-		if (strlen(modul_ver_char) > 19)
-		{
-			xy_free(modul);
-			xy_free(modul_ver_char);
-			xy_free(modul_ver_nv);
-			return ATERR_PARAM_INVALID;
-		}
-
-		memset(g_softap_fac_nv->modul_ver, 0, 20);
-		memcpy(g_softap_fac_nv->modul_ver, modul_ver_char, strlen(modul_ver_char));
-
-		xy_free(modul);
-		xy_free(modul_ver_char);
-		xy_free(modul_ver_nv);
-
-		SAVE_FAC_PARAM(modul_ver);
+		snprintf(*prsp_cmd, 128, 
+			"\r\n%s_%s\r\n\r\nOK\r\n", 
+			VENDOR_NAME,
+			PRODUCT_NAME 
+			);	
 	}
-	else if (g_req_type == AT_CMD_ACTIVE)
-	{
-		char *module = NULL;
-		char *head = NULL;
-		char module_type[25] = {0};
-
-		module = (char*)g_softap_fac_nv->modul_ver;
-		if(strlen(module) > 19)
-			return ATERR_PARAM_INVALID;
-
-		head = strchr(module, '-');
-		*prsp_cmd = xy_malloc(32);
-		if (head == NULL)
-		{
-			snprintf(*prsp_cmd, 32, "\r\n%s", g_softap_fac_nv->modul_ver);
-			return AT_END;
-		}
-		memcpy(module_type, head + 1, strlen(head + 1));
-		snprintf(*prsp_cmd, 32, "\r\n%s", module_type);
-	}
-	else if (g_req_type == AT_CMD_QUERY)
-	{
+	else 
 		return ATERR_PARAM_INVALID;
-	}
 	return AT_END;
 }
 
@@ -1054,72 +1042,20 @@ int at_CGMM_req(char *at_buf, char **prsp_cmd)
 //AT+CGMI=<verval>
 int at_CGMI_req(char *at_buf, char **prsp_cmd)
 {
-	if(g_req_type == AT_CMD_REQ)
+	if(g_req_type==AT_CMD_ACTIVE)
 	{
-		char modul_ver_temp[8] = {0};
-		char* modul_ver_char = xy_malloc(20);
-		char* modul_ver_nv = xy_malloc(20);
+		*prsp_cmd = xy_malloc(128);
 
-		char *end_str = NULL;
-		memset(modul_ver_char, 0, 20);
-		memset(modul_ver_nv, 0 ,20);
-		if (at_parse_param("%8s", at_buf, modul_ver_temp) != AT_OK)
-		{
-			xy_free(modul_ver_char);
-			xy_free(modul_ver_nv);
-			return ATERR_PARAM_INVALID;
-		}
-
-		memcpy(modul_ver_char,modul_ver_temp,strlen(modul_ver_temp));
-		memcpy(modul_ver_nv, g_softap_fac_nv->modul_ver, 19);
-
-		end_str = strchr(modul_ver_nv,'-');
-		if(end_str != NULL)
-		{
-			sprintf(modul_ver_char+strlen(modul_ver_char),"%s",end_str);
-		}
-
-		if(strlen(modul_ver_char) > 19)
-		{
-			xy_free(modul_ver_char);
-			xy_free(modul_ver_nv);
-			return ATERR_PARAM_INVALID;
-		}
-
-		memset(g_softap_fac_nv->modul_ver, 0, 20);
-		memcpy(g_softap_fac_nv->modul_ver, modul_ver_char, strlen(modul_ver_char));
-
-		if(end_str == NULL)
-			g_softap_fac_nv->modul_ver[strlen((const char*)(g_softap_fac_nv->modul_ver))] = '-';
-
-		//if softap factory NV vary,must set 1
-		xy_free(modul_ver_char);
-		xy_free(modul_ver_nv);
-		SAVE_FAC_PARAM(modul_ver);
+		snprintf(*prsp_cmd, 128, 
+			"\r\n%s\r\n\r\nOK\r\n", 
+			VENDOR_NAME
+			);	
 	}
-	else if(g_req_type == AT_CMD_ACTIVE)
-	{
-		//int i = 0;
-		char *head;
-		char *end;
-		char manufa_code[25] = {0};
-		
-		head = (char*)g_softap_fac_nv->modul_ver;
-		if(strlen(head) > 19)
-			return ATERR_PARAM_INVALID;
-		end = strchr(head, '-');
-		*prsp_cmd = xy_malloc(32);
-		if (end == NULL)
-		{
-			snprintf(*prsp_cmd, 32, "\r\n%s", g_softap_fac_nv->modul_ver);
-			return AT_END;
-		}
-		memcpy(manufa_code, head, end - head);
-		snprintf(*prsp_cmd, 32, "\r\n%s", manufa_code);
-	}
-	else if (g_req_type == AT_CMD_QUERY)
+	else 
 		return ATERR_PARAM_INVALID;
+
 	return AT_END;
+	
 }
 
 
@@ -1137,7 +1073,7 @@ int at_NPSMR_req(char *at_buf, char **prsp_cmd)
 		}
 		
 		g_softap_fac_nv->g_NPSMR_enable = val;
-#if VER_BC95
+#if 0//VER_BC95
 		g_softap_var_nv->g_NPSMR_enable = val;
 #else
 		SAVE_FAC_PARAM(g_NPSMR_enable);
@@ -1149,7 +1085,7 @@ int at_NPSMR_req(char *at_buf, char **prsp_cmd)
 
 		if (g_softap_fac_nv->g_NPSMR_enable==1)
 		{
-#if (VER_BC95)
+#if 0//(VER_BC95)
 			extern int g_npsmr_status;
 		    snprintf(*prsp_cmd, 40, "+NPSMR:1,%d", g_npsmr_status);
 #else
@@ -1175,16 +1111,170 @@ int at_NPSMR_req(char *at_buf, char **prsp_cmd)
 //显示产品标识信息ATI
 int at_ATI_req(char *at_buf, char **prsp_cmd)
 {
-	(void) at_buf;
-
-	if(g_req_type==AT_CMD_REQ || g_req_type==AT_CMD_ACTIVE)
+	if(g_req_type==AT_CMD_ACTIVE)
 	{
 		*prsp_cmd = xy_malloc(128);
-#if VER_BC95
-		snprintf(*prsp_cmd, 128, "\r\nXY1200\r\n%s\r\nRevision:%s", MODULE_VER_STR, PRODUCT_VER);
-#else
-		snprintf(*prsp_cmd, 128, "XY1200\r\n%s\r\nRevision:%s\r\n\r\nOK\r\n", MODULE_VER_STR, PRODUCT_VER);
-#endif //VER_QUECTE		
+
+		snprintf(*prsp_cmd, 128, 
+			"\r\n%s\r\n%s\r\nRevision:%s_T%sS%s\r\n\r\nOK\r\n", 
+			VENDOR_NAME,
+			PRODUCT_NAME, 
+			PRODUCT_NAME,
+			VERSION_INFO_NEW,
+			BUILD_DATE
+			);	
+	}
+	else
+	{
+		return  (ATERR_PARAM_INVALID);
+	}
+	return AT_END;
+}
+
+int at_SGSW_req(char *at_buf, char **prsp_cmd)
+{
+	//SLM130-NA.1.2.0.0T00S0531_M018_XY1200S
+	if(g_req_type==AT_CMD_ACTIVE)
+	{
+		*prsp_cmd = xy_malloc(128);
+		snprintf(*prsp_cmd, 128, "\r\n%s.%sT%sS%s_%s_%s\r\n\r\nOK\r\n",
+			PRODUCT_NAME,
+			BOARD_PATCH,
+			VERSION_INFO_NEW,
+			BUILD_DATE,
+			VERSION_DEV_TYPE,
+			MODULE_CHIP_NAME
+			);
+	}
+	else
+	{
+		return  (ATERR_PARAM_INVALID);
+	}
+
+	return AT_END;	
+}
+char* my_itoa(unsigned long long int num,char* str,int radix)
+{
+    char index[]="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    unsigned long long int unum;
+    int i=0,j,k;
+ 
+    if(radix==10&&num<0)
+    {
+        unum=(unsigned long long int)-num;
+        str[i++]='-';
+    }
+    else unum=(unsigned long long int)num;
+ 
+
+    do
+    {
+        str[i++]=index[unum%(unsigned long long int)radix];
+        unum/=radix;
+ 
+    }while(unum);
+ 
+    str[i]='\0';
+ 
+   
+    if(str[0]=='-') k=1;
+    else k=0;
+ 
+    char temp;
+    for(j=k;j<=(i-1)/2;j++)
+    {
+        temp=str[j];
+        str[j]=str[i-1+k-j];
+        str[i-1+k-j]=temp;
+    }
+ 
+    return str;
+ 
+}
+int at_NGT3412_req(char *at_buf, char **prsp_cmd)
+{
+	int ret;
+	(void) at_buf;
+	ATC_MSG_CPSMS_R_CNF_STRU pCpsmsCnf = { 0 };
+    unsigned char                  i = 0, p = 4, q = 16;
+    unsigned char                   aucTau[9]     = {0};
+	char                  str[50]= {0};
+	int height_three_bit_val= 0,low_five_bit_val= 0;
+	unsigned long long int millisecond = 0;
+	
+	if(xy_atc_interface_call("AT+CPSMS?\r\n", NULL, (void*)&pCpsmsCnf) == ATC_AP_FALSE)
+		return ATC_AP_FALSE;
+	
+    for ( i = 0; i < 8; i++)
+    {
+        aucTau[i] = ((pCpsmsCnf.ucReqPeriTAU >> (7 - i))&0x01) + 0x30;
+    }		
+	i = 0;
+	while((i < 8))
+	{
+		if(i < 3)
+		{
+			height_three_bit_val += ((aucTau[i]- '0') * p);
+			p /= 2;
+		}
+		else
+		{
+			low_five_bit_val += ((aucTau[i] - '0') * q);		
+			q /= 2;
+		}		
+		i++;
+	}
+	switch (height_three_bit_val)
+	{
+		case 0:
+			millisecond = low_five_bit_val * 10 * 60 * 1000;
+			break;
+		case 1:
+			millisecond = low_five_bit_val * 1 * 60 * 60 * 1000;
+			break;
+		case 2:
+			millisecond = low_five_bit_val * 10 * 60 * 60 * 1000;
+			break;
+		case 3:
+			millisecond = low_five_bit_val * 2 * 1000;
+			break;			
+		case 4:
+			millisecond = low_five_bit_val * 30 * 1000;
+			break;
+		case 5:
+			millisecond = low_five_bit_val * 1 * 60 * 1000;
+			break;
+		case 6:
+			millisecond = (unsigned long long int)low_five_bit_val * 320 * 60 * 60 * 1000;
+			break;
+		case 7:
+			break;			
+	}
+	if(g_req_type==AT_CMD_ACTIVE)
+	{
+		*prsp_cmd = xy_malloc(128);
+		my_itoa(millisecond, str, 10);			
+		snprintf(*prsp_cmd, 128, "\r\n+NGT3412:%s",str);
+	}
+	else
+	{
+		return  (ATERR_PARAM_INVALID);
+	}
+	return AT_END;	
+}
+
+int at_CGMR_req(char *at_buf, char **prsp_cmd)
+{
+	if(g_req_type==AT_CMD_ACTIVE)
+	{
+		*prsp_cmd = xy_malloc(128);
+
+		snprintf(*prsp_cmd, 128, 
+			"\r\nRevision:%s_T%sS%s\r\n\r\nOK\r\n", 
+			PRODUCT_NAME,
+			VERSION_INFO_NEW,
+			BUILD_DATE
+			);	
 	}
 	else
 	{
@@ -1202,7 +1292,7 @@ int at_QGMR_req(char *at_buf, char **prsp_cmd)
 	if(g_req_type==AT_CMD_ACTIVE)
 	{
 		*prsp_cmd = xy_malloc(128);
-		snprintf(*prsp_cmd, 128, "\r\n%s", PRODUCT_VER);
+		snprintf(*prsp_cmd, 128, "\r\n%s", PRODUCT_NAME);
 	}
 	else
 		return  (ATERR_PARAM_INVALID);
@@ -1256,6 +1346,3 @@ int at_DUMP_req(char *at_buf, char **prsp_cmd)
 
 	return AT_END;
 }
-
-
-

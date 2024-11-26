@@ -9,10 +9,20 @@
 
 /********************************** 版本相关 **********************************/
 /* 设备型号，用户可自行更改 */
-#define MODULE_VER_STR          "XY1200"
+#define PRODUCT_NAME         "SLM130-NA"
 
-/* 软件版本号，用户可自行更改 */
-#define PRODUCT_VER         "XY1200"
+#define VENDOR_NAME          "MeiG"
+#define MODULE_CHIP_NAME     "XY1200S"
+#define PRODUCT_VER PRODUCT_NAME
+#define MODULE_VER_STR  PRODUCT_NAME
+
+
+#define BOARD_PATCH      	 "1.2.5.0"
+#define VERSION_DEV_TYPE	 "M018"
+
+#define BUILD_DATE           "1126"
+#define VERSION_INFO_NEW	 "04"
+
 
 /********************************** 云业务相关 **********************************/
 /**
@@ -77,7 +87,3 @@ unsigned int xy_getVbatCapacity();
  *  用户根据自身的业务开发，也可以适当调用该接口，以决定是否能执行某高功耗的动作。
  */
 bool xy_is_enough_Capacity(int state);
-
-
-
-

@@ -177,3 +177,26 @@ void socket_pack_qsosrsp(int *socket_ids, char *rsp_fmt, char **prsp_cmd);
 void socket_debug(int id);
 
 void socket_set_state(int id, int state);
+
+typedef enum
+{
+	SOCK_TCP_CTL_TIMEOUT = 0,
+	SOCK_UDP_CTL_TIMEOUT,
+	SOCK_HTTP_CTL_TIMEOUT,
+	SOCK_MQTT_CTL_TIMEOUT,
+	SOCK_CANCEL_CHECK,
+    SOCK_MAX
+} SOCK_TIMEOUT_STATUS;
+
+#define SOCKT_TIMEOUT_30S	30000
+#define SOCKT_TIMEOUT_10S	10000
+
+struct sock_tm_msg {
+	SOCK_TIMEOUT_STATUS		msg_id;
+    int socket_id;
+	int delay_ms;
+	int sequence;
+};
+
+void call_socket_delay(SOCK_TIMEOUT_STATUS msg_type, int sockid,int delay_ms,int sequence);
+void init_socket_timeout(void);

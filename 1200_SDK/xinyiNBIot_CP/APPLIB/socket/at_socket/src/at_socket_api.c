@@ -390,6 +390,142 @@ int socket_accept(int sock_fd)
     return TCPIP_OP_OK;
 }
 
+///-------------------------处理超时,异步消息------------------------------------
+osThreadId_t g_socket_timeout_handle = NULL;
+osMessageQueueId_t g_socket_timeout_q = NULL;
+
+osTimerId_t socket_waiting_timer = NULL;
+SOCK_TIMEOUT_STATUS g_socket_timeout_status;
+int                 g_socket_id;
+int                 g_sequence;
+
+extern void http_ctl_timeout_callback(int socket_id);
+//extern void mqtt_ctl_timeout_callback(int socket_id);
+
+void socket_timer_calback(void)
+{
+#if 0    
+    char *report_buf = xy_malloc(64);
+
+    snprintf(report_buf, 32, "\r\nsocket_timer_calback,stat:%d\r\n",g_socket_timeout_status);
+	write_to_at_uart(report_buf,strlen(report_buf));
+    xy_free(report_buf);
+#endif
+
+    if (g_socket_timeout_status == SOCK_TCP_CTL_TIMEOUT) {
+        socket_context_t* ctx = g_socket_ctx[g_socket_id];
+        close(ctx->fd);
+    } else if (g_socket_timeout_status == SOCK_UDP_CTL_TIMEOUT) {
+        char *report_buf = xy_malloc(32);
+        
+        snprintf(report_buf, 32, "+NSOSTR:%d,%d,0", g_socket_id,g_sequence);
+        send_urc_to_ext(report_buf, strlen(report_buf));
+ 
+        xy_free(report_buf);
+
+    } else if (g_socket_timeout_status == SOCK_HTTP_CTL_TIMEOUT) {
+        http_ctl_timeout_callback(g_socket_id);
+    } else if (g_socket_timeout_status == SOCK_MQTT_CTL_TIMEOUT) {
+        //mqtt_ctl_timeout_callback(g_socket_id);
+    }
+    if (socket_waiting_timer != NULL) {
+        osTimerDelete(socket_waiting_timer);
+	    socket_waiting_timer = NULL;
+    }
+}
+
+void socket_conn_timeout_task(void)
+{
+    struct sock_tm_msg *rcv_msg = NULL;	
+    osTimerAttr_t timer_attr = {0};
+	//char *report_buf;
+		
+    while(1) {
+		osMessageQueueGet(g_socket_timeout_q, &rcv_msg, NULL, osWaitForever);
+        //vTaskDelay(100);
+        #if 0
+        report_buf = xy_malloc(32);
+        sprintf(report_buf, "\r\nsocket_conn_timeout_task:%d/%d\r\n",rcv_msg->msg_id,rcv_msg->socket_id);
+        write_to_at_uart(report_buf,strlen(report_buf));
+        xy_free(report_buf);
+        #endif
+        
+        switch (rcv_msg->msg_id)
+		{
+		    case SOCK_TCP_CTL_TIMEOUT:
+            case SOCK_HTTP_CTL_TIMEOUT:
+            case SOCK_MQTT_CTL_TIMEOUT:
+            case SOCK_UDP_CTL_TIMEOUT:
+                g_socket_timeout_status = rcv_msg->msg_id;
+                g_socket_id = rcv_msg->socket_id;
+                g_sequence = rcv_msg->sequence;
+                
+                timer_attr.name = "socket_tmr1";
+                if (socket_waiting_timer != NULL) {
+                    osTimerDelete(socket_waiting_timer);
+                }
+            	socket_waiting_timer = osTimerNew((osTimerFunc_t)(socket_timer_calback), osTimerOnce, NULL, &timer_attr);
+		        osTimerStart(socket_waiting_timer, rcv_msg->delay_ms);
+
+                break;
+            case SOCK_CANCEL_CHECK:
+                g_socket_timeout_status = SOCK_CANCEL_CHECK;
+                if (socket_waiting_timer != NULL) {
+                    osTimerDelete(socket_waiting_timer);
+	                socket_waiting_timer = NULL;
+                }
+                break;
+            default:
+                break;
+        }
+        //xy_free(rcv_msg);
+    }
+
+	osThreadExit();
+}
+
+void call_socket_delay(SOCK_TIMEOUT_STATUS msg_type, int sockid,int delay_ms,int sequence)
+{
+	struct sock_tm_msg *msg =NULL;
+	
+    if ((g_socket_timeout_q == NULL) || (g_socket_timeout_handle == NULL)) {
+        init_socket_timeout();
+        vTaskDelay(50);
+    }
+
+	msg = xy_malloc(sizeof(struct sock_tm_msg));
+	msg->msg_id = msg_type;
+    msg->socket_id = sockid;
+    msg->delay_ms = delay_ms;
+    msg->sequence = sequence;
+
+    if (g_socket_timeout_q != NULL) {
+	    osMessageQueuePut(g_socket_timeout_q, &msg, 0, osNoWait);
+    } else {
+        xy_free(msg);
+    }
+}
+
+
+void init_socket_timeout(void)
+{
+	osThreadAttr_t thread_attr = {0};
+		
+    if(g_socket_timeout_q == NULL) {
+		g_socket_timeout_q = osMessageQueueNew(20, sizeof(void *), NULL);
+    }
+
+    if (g_socket_timeout_handle == NULL) {
+        thread_attr.name	   = "socket_timeout";
+        thread_attr.priority   = osPriorityNormal;
+        thread_attr.stack_size = 0x400;
+        
+        g_socket_timeout_handle= osThreadNew ((osThreadFunc_t)(socket_conn_timeout_task),NULL,&thread_attr);
+    }
+}
+
+//------------------------------------------------------------------------------
+
 int socket_create(socket_create_param_t* arg)
 {
     xy_assert(arg != NULL);
@@ -398,6 +534,8 @@ int socket_create(socket_create_param_t* arg)
     int sock_id = -1;
     int af_type;
     struct sockaddr_storage bind_addr = {0};
+
+    init_socket_timeout();
 
     if ((sock_id = get_socket_avail_id()) < 0)
     {

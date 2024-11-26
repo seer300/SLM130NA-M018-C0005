@@ -1,5 +1,13 @@
 #pragma once
 
+
+
+
+
+
+
+
+
 /*******************************************************************************
  *						Global function declarations 					       *
  ******************************************************************************/
@@ -14,6 +22,12 @@ int at_NPSMR_req(char *at_buf, char **prsp_cmd);
 int at_QGMR_req(char *at_buf, char **prsp_cmd);
 int at_QVERTIME_req(char *at_buf, char **prsp_cmd);
 int at_DUMP_req(char *at_buf, char **prsp_cmd);
+int at_SGSW_req(char *at_buf, char **prsp_cmd);
+int at_CGMR_req(char *at_buf, char **prsp_cmd);
+int at_mgsleep_req(char *at_buf, char **prsp_cmd);
+int at_NGT3412_req(char *at_buf, char **prsp_cmd);
+
+
 
 
 

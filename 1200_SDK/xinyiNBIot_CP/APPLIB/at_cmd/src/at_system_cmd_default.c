@@ -99,7 +99,7 @@ int at_NITZ_req(char *at_buf, char **prsp_cmd)
 
 		g_NITZ_mode = temp;
 
-		if (save_NITZ == 1)
+		//if (save_NITZ == 1)
 		{
 			g_softap_fac_nv->g_NITZ = g_NITZ_mode;
 			SAVE_FAC_PARAM(g_NITZ);	
