@@ -3,8 +3,10 @@
 使用芯翼XY1200S平台开发
 
 ## 首次编译前准备
-请前往[Release页面](https://github.com/seer300/SLM130NA-SoftSIM-C0005/releases/tag/buildtools)下载编译工具包（芯翼提供）  
+1、请前往[Release页面](https://github.com/seer300/SLM130NA-SoftSIM-C0005/releases/tag/buildtools)下载编译工具包（芯翼提供）  
 解压到`1200_SDK`目录下
+
+2、进入`exclusive-tools`目录，下载解压好相关开发软件
 
 ## 开始编译
 ### Windows平台
