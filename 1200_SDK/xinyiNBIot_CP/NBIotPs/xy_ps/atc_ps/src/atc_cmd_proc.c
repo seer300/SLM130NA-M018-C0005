@@ -2400,26 +2400,13 @@ void AtcAp_MsgProc_NBAND_T_Cnf(unsigned char* pRecvMsg)
     usOffset    = g_AtcApInfo.stAtRspInfo.usRspLen;
     if (ucBandCount > 0)
     {
-        for( i = 0; i < ucBandCount; i++ )
+        for( i = 0; i < (ucBandCount-1); i++ )
         {
-            if (pNbandTCnf->stSupportBandList.aucSuppBand[i] == 1 ||
-                pNbandTCnf->stSupportBandList.aucSuppBand[i] == 20 ||
-                pNbandTCnf->stSupportBandList.aucSuppBand[i] == 28) {
-                // ݲ֧ Ƶ 12028Ӧȥ
-                continue;
-            }
-            if ( i != 0 )
-            {
-                g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)",");
-                usOffset = g_AtcApInfo.stAtRspInfo.usRspLen;
-            }
-
-            g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)"%d", aucBandInfo[i]);
-            usOffset = g_AtcApInfo.stAtRspInfo.usRspLen;
+            g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)"%d,", aucBandInfo[i]);
+            usOffset    = g_AtcApInfo.stAtRspInfo.usRspLen;
         }
     
-        // g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)"%d)\r\n", aucBandInfo[i]);
-        g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)")\r\n");
+        g_AtcApInfo.stAtRspInfo.usRspLen += AtcAp_StrPrintf((unsigned char *)g_AtcApInfo.stAtRspInfo.aucAtcRspBuf+usOffset, (const unsigned char *)"%d)\r\n", aucBandInfo[i]);
     }
     else
     {
