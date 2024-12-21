@@ -20,8 +20,8 @@
 #define BOARD_PATCH      	 "1.2.5.0"
 #define VERSION_DEV_TYPE	 "M018"
 
-#define BUILD_DATE           "1205"
-#define VERSION_INFO_NEW	 "09"
+#define BUILD_DATE           "1221"
+#define VERSION_INFO_NEW	 "10"
 
 
 /********************************** 云业务相关 **********************************/
