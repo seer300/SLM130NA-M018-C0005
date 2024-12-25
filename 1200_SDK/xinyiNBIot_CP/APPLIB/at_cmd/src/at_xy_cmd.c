@@ -1114,15 +1114,35 @@ int at_ATI_req(char *at_buf, char **prsp_cmd)
 	if(g_req_type==AT_CMD_ACTIVE)
 	{
 		*prsp_cmd = xy_malloc(128);
+		ATC_MSG_NBAND_R_CNF_STRU tNbandRcnf = {0};
 
-		snprintf(*prsp_cmd, 128, 
-			"\r\n%s\r\n%s\r\nRevision:%s_T%sS%s\r\n\r\nOK\r\n", 
-			VENDOR_NAME,
-			PRODUCT_NAME, 
-			PRODUCT_NAME,
-			VERSION_INFO_NEW,
-			BUILD_DATE
-			);	
+		if(ATC_AP_TRUE == xy_atc_interface_call("AT+NBAND?\r\n", NULL, (void*)&tNbandRcnf)){
+			if (tNbandRcnf.stSupportBandList.aucSuppBand[0] == 2)
+			{
+				// 美洲版
+				snprintf(*prsp_cmd, 128,
+					"\r\n%s\r\n%s\r\nRevision:%s_T%sS%s\r\n\r\nOK\r\n",
+					VENDOR_NAME,
+					PRODUCT_NAME, 
+					PRODUCT_NAME,
+					VERSION_INFO_NEW,
+					BUILD_DATE
+				);
+			}else{
+				// 欧亚非版
+				snprintf(*prsp_cmd, 128,
+					"\r\n%s\r\n%s\r\nRevision:%s_T%sS%s_E\r\n\r\nOK\r\n",
+					VENDOR_NAME,
+					PRODUCT_NAME,
+					PRODUCT_NAME,
+					VERSION_INFO_NEW,
+					BUILD_DATE
+				);
+			}
+		}else{
+			// 调用NBAND失败
+			snprintf(*prsp_cmd, 128, "\r\nERROR:NO NBAND INFO!\r\n");
+		}
 	}
 	else
 	{
@@ -1291,13 +1311,31 @@ int at_CGMR_req(char *at_buf, char **prsp_cmd)
 	if(g_req_type==AT_CMD_ACTIVE)
 	{
 		*prsp_cmd = xy_malloc(128);
+		ATC_MSG_NBAND_R_CNF_STRU tNbandRcnf = {0};
 
-		snprintf(*prsp_cmd, 128, 
-			"\r\nRevision:%s_T%sS%s\r\n\r\nOK\r\n", 
-			PRODUCT_NAME,
-			VERSION_INFO_NEW,
-			BUILD_DATE
-			);	
+		if(ATC_AP_TRUE == xy_atc_interface_call("AT+NBAND?\r\n", NULL, (void*)&tNbandRcnf)){
+			if (tNbandRcnf.stSupportBandList.aucSuppBand[0] == 2)
+			{
+				// 美洲版
+				snprintf(*prsp_cmd, 128, 
+					"\r\nRevision:%s_T%sS%s\r\n\r\nOK\r\n", 
+					PRODUCT_NAME,
+					VERSION_INFO_NEW,
+					BUILD_DATE
+				);
+			}else{
+				// 欧亚非版
+				snprintf(*prsp_cmd, 128, 
+					"\r\nRevision:%s_T%sS%s_E\r\n\r\nOK\r\n",
+					PRODUCT_NAME,
+					VERSION_INFO_NEW,
+					BUILD_DATE
+				);
+			}
+		}else{
+			// 调用NBAND失败
+			snprintf(*prsp_cmd, 128, "\r\nERROR:NO NBAND INFO!\r\n");
+		}
 	}
 	else
 	{
