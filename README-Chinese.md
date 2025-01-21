@@ -3,7 +3,7 @@
 使用芯翼XY1200S平台开发
 
 ## 首次编译前准备
-1、请前往[Release页面](https://github.com/seer300/SLM130NA-SoftSIM-C0005/releases/tag/buildtools)下载编译工具包（芯翼提供）  
+1、请前往 [Release页面](https://github.com/seer300/SLM130NA-SoftSIM-C0005/releases/tag/buildtools) 下载编译工具包（芯翼提供）  
 解压到`1200_SDK`目录下
 
 2、进入`exclusive-tools`目录，下载解压好相关开发软件
@@ -22,3 +22,7 @@
 该脚本会将`Allbins`下的`arm.img cp.img loginfo.info`三个文件拷贝到`SLM130NA-C0005\V1200FB10002R00C0005\allbins`目录下  
 
 启动LogView软件，执行打包流程。路径选择`SLM130NA-C0005\V1200FB10002R00C0005\allbins`目录即可
+
+## 分支说明
+### master
+M018 默认分支，芯翼1200s海外默认版本  
