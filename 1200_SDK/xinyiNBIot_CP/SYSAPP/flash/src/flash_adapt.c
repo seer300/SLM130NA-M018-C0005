@@ -32,7 +32,6 @@ osMutexId_t g_flashdma_mutex = NULL; //flash底层读写接口使用的dma通道
 volatile flash_status g_flash_status = {0};
 osMessageQueueId_t g_flash_MsgQueue;
 ListHeader_t flash_list = {0};
-extern uint8_t GetForbidFlash(void);
 
 void flash_acquire_mutex(osMutexId_t mutex_id, uint32_t timeout)
 {
@@ -238,26 +237,9 @@ __FLASH_FUNC int flashTsk_write_no_erase(uint32_t addr, uint8_t *data, uint32_t 
     lastburstsize=(size & 0x3f);
 
 	for(i=0; i<burstcount; i++) {
+		flash_acquire_mutex(g_flashdma_mutex, osWaitForever);
+		osCoreEnterCritical();
 
-		// 优化代码，防止关中断之后，GetForbidFlash()为1，然后还执行flash写动作
-		while (1)
-		{
-			while(GetForbidFlash());/*1200Bx系列芯片，由于CS 模块的dma功能和Flash 的dma功能存在同时发生的场景，会导致Cs的dma完成中断被严重退后，最终导致Cs模块软硬件控制时序错乱，此接口将禁止在 cs coarse场景下触发写Flash动作*/
-
-			flash_acquire_mutex(g_flashdma_mutex, osWaitForever);
-			osCoreEnterCritical();
-
-			if (GetForbidFlash()) 
-			{
-				osCoreExitCritical();
-				flash_release_mutex(g_flashdma_mutex);
-			}
-			else
-			{
-				break;
-			}
-		}
-		
 #if RUNTIME_DEBUG
 		extern uint32_t xy_runtime_get_enter(void);
 		uint32_t time_enter = xy_runtime_get_enter();

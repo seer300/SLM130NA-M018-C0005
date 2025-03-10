@@ -1574,7 +1574,7 @@ uint8_t T0_Cmd_Handler(uint8_t *Txbuff, uint8_t *Rxbuff, uint32_t* len)
 	uint8_t is_rcv_more		=	0;
 
 	T_Command_APDU TxAPDU	=	{0};
-
+	uint8_t procedure_byte_repeat_num	=	0;
 	//uint32_t waiting_time 	= 	SC7816_Item.profile.WI*960*SC7816_Item.profile.Fi+480*SC7816_Item.profile.Fi;
     uint32_t waiting_time 	= 	(SC7816_Item.profile.WI*960*SC7816_Item.profile.Fi)*5/4;//margin
 	if((PROCEDURE_T0_CMD != SC7816_Item.current_procedure) && (PROCEDURE_CLK_STOP != SC7816_Item.current_procedure))
@@ -1677,6 +1677,22 @@ uint8_t T0_Cmd_Handler(uint8_t *Txbuff, uint8_t *Rxbuff, uint32_t* len)
 				SC7816_Item.T0_state	=	STATE_T0_CMD_FAILURE;
 				return SC_FAILURE;
 			}
+			//for debug,card continues sending a 0x60 byte
+			if(0x60 == character)
+			{
+				procedure_byte_repeat_num++;
+				if(procedure_byte_repeat_num >= 6)
+				{
+					PrintLog(0, PLATFORM, WARN_LOG, "uSim recv procedure byte null for %d times",procedure_byte_repeat_num);
+					SC7816_Item.T0_state	=	STATE_T0_CMD_FAILURE;
+					return SC_FAILURE;
+				}
+			}
+			else
+			{
+				procedure_byte_repeat_num = 0;
+			}
+
 			if(0x60 == character)
 			{
 				SC7816_Item.T0_state	=	STATE_T0_CMD_NULL;
