@@ -19,10 +19,17 @@
 ## 打包固件
 在`SLM130NA-C0005/1200_SDK`目录下，运行`cp_AllbinsF.bat`脚本  
 
-该脚本会将`Allbins`下的`arm.img cp.img loginfo.info`三个文件拷贝到`SLM130NA-C0005\V1200FB10002R00C0005\allbins`目录下  
+该脚本会将`Allbins`下的`arm.img cp.img loginfo.info`三个文件拷贝到`SLM130NA-C0005\V1200FB10002R00C0005P02\allbins`目录下  
 
-启动LogView软件，执行打包流程。路径选择`SLM130NA-C0005\V1200FB10002R00C0005\allbins`目录即可
+启动LogView软件，执行打包流程。路径选择`SLM130NA-C0005\V1200FB10002R00C0005P02\allbins`目录即可
 
 ## 分支说明
 ### master
 M018 默认分支，芯翼1200s海外默认版本  
+
+## 补丁合入记录
+### 2025年3月10日 SDK_V1200FB10002R00C0005P02
+| 修改模块 | 修改说明 |
+| ----------- | ----------- |
+| 平台 | OPEN形态下，3GPP断电保存方案处理优化 |
+| MODEM | 针对漫游网络场景，NV添加PLMN配置项，客户配置后可在搜网时一起搜：ucEhplmnNum 数量 aucEhplmn 具体PLMN |
