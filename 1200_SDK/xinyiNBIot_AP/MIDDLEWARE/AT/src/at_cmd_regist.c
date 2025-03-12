@@ -11,6 +11,9 @@
 #include "sys_mem.h"
 #include "xy_fota.h"
 #include "sys_ipc.h"
+#if GNSS_EN
+#include "gnss_at.h"
+#endif
 
 
 #define AT_DEEPSLEEP_LOCK USER_DSLEEP_LOCK1
@@ -74,6 +77,10 @@ const at_cmd_t g_AT_cmd_list[] = {
 	{"MASTER", at_MASTER_req},
 #elif (DRIVER_TEST == 2)
 	{"SLAVE", at_SLAVE_req},
+#endif
+
+#if GNSS_EN
+	{"GNSS",at_GNSS_req},//gnss大集成调试命令集
 #endif
 
 

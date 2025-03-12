@@ -523,7 +523,13 @@ void DeepSleep_Power_Manage(void)
 
         PRCM_ForceCPOff_Enable();//进mcu 模式
         #endif
-	}	
+	}
+
+#if GNSS_EN
+	extern void gnss_deepsleep_manage();
+	gnss_deepsleep_manage();
+#endif
+
 }
 
 extern uint8_t PRCM_IsOn_Retldo(void);
@@ -586,6 +592,11 @@ void normal_deepsleep_wfi(int lpuart_keep)
     {
             AONPRCM->AONGPREG2 = (AONPRCM->AONGPREG2 & 0x1F) | (PRCM_LPUARTclkDivGet() << 5);  //AONGPREG2的bit5-7用于记录lpuart分频
         PRCM_LPUA1_ClkSet(AON_HRC_DIV16);
+
+#if GNSS_EN
+        extern void gnss_lowpower_set();
+        gnss_lowpower_set();//极低功耗模式，防止被重复改动，放在此处
+#endif
 
         // bug15477 new深睡前配置aon_cntl_85和aon_cnt_77为1
         if (HWREG(BAK_MEM_OTP_SOC_ID_BASE) >= 0x1)
@@ -723,6 +734,10 @@ void Deepsleep_Entry(void)
 
 void DeepSleep_Power_Recover(void)
 {
+#if GNSS_EN	
+	extern void gnss_deepsleep_recover();
+	gnss_deepsleep_recover();
+#endif
 
 	// 非快速恢复时运行至此，表明深睡失败，因此主动恢复电源配置
 	// 快速恢复模式的电源配置在reset_handler完成，此处无需额外操作

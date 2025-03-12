@@ -235,6 +235,10 @@ __RAM_FUNC void at_lpuart_write(char *buf, int size)
  */
 __RAM_FUNC void at_uart_write_data(char *buf, int size)
 {
+#if GNSS_EN
+    extern int g_hex_test;
+    if(g_hex_test == 0)
+#endif
 		return at_lpuart_write(buf,size);
 }
 

@@ -362,6 +362,13 @@ int simple_set_val(char *param,int val)
 	}
 #endif
 
+#if GNSS_EN
+	else if (!strcmp(param, "GNSSCOLDSTART"))
+	{
+		g_softap_fac_nv->gnss_cold_start = val;
+		SAVE_FAC_PARAM(gnss_cold_start);
+	}
+#endif
 
 	else if (!strcmp(param, "MGHW"))
 	{
@@ -539,7 +546,11 @@ int simple_get_val(char *param,char **prsp_cmd)
 	
 	else if (!strcmp(param, "XTAL32K"))
 		sprintf(*prsp_cmd, "\r\n%d\r\n\r\nOK\r\n", Get_32K_Freq());
-	
+
+#if GNSS_EN
+	else if (!strcmp(param, "GNSSCOLDSTART"))
+		sprintf(*prsp_cmd, "\r\n%d\r\n\r\nOK\r\n", g_softap_fac_nv->gnss_cold_start);
+#endif
 
 	else if (!strcmp(param, "MGHW"))
 		sprintf(*prsp_cmd, "\r\n%d\r\n\r\nOK\r\n", g_softap_fac_nv->rfSidoSetting_mg);

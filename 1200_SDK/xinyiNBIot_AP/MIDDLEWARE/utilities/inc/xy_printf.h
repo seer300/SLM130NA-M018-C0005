@@ -49,6 +49,10 @@ void xy_print_uart_Init(uint32_t bound_rate);
 void xy_logview_switch_ap();
 void xy_logview_switch_cp();
 
+#if GNSS_EN
+/*GNSS的NMEA的码流log输出，以供logview抽取*/
+void xy_printf_NMEA(const char *fmt, ...);
+#endif
 
 #else
 #define xy_print_uart_Init(bound_rate)

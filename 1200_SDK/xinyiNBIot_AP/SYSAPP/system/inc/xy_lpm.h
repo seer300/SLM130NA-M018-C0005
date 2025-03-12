@@ -14,6 +14,9 @@ typedef enum
 {
 	DSLEEP_BASE = 0,
 	XY_NATSPEED_LOCK=DSLEEP_BASE, /* AT+NATSPEED专用 */
+#if GNSS_EN
+	DSLEEP_GNSS_LOCK,       /* GNSS深睡锁 */
+#endif
 	DSLEEP_QSCLK,           /* BC25深睡锁,由出厂NV和AT命令控制 */
 
 	USER_DSLEEP_LOCK1,      /* 用户自行改宏名 */
@@ -24,6 +27,9 @@ typedef enum
     STANDBY_BASE = DSLEEP_END,
     STANDBY_DEFAULT=STANDBY_BASE,
     STANDBY_AT_RATE_LOCK,   /* at串口波特率锁，超过9600建议上锁 */
+#if GNSS_EN
+	STANDBY_GNSS_LOCK,      /* gnss 锁 */
+#endif
 	USER_STANDBY_LOCK1,     /* 用户自行改宏名 */
 	USER_STANDBY_LOCK2,     /* 用户自行改宏名 */
 	STANDBY_END=28,

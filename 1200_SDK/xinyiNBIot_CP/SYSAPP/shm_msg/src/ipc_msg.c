@@ -284,6 +284,13 @@ void inter_core_msg_entry()
 					icm_ap_log((void *)*((uint32_t *)(rcv_buf)));
 					break;
 				}	
+#if GNSS_EN
+				case ICM_AP_GNSS_LOG:
+				{
+					icm_ap_gnss_log((void *)*((uint32_t *)(rcv_buf)));
+					break;
+				}
+#endif
 				case ICM_AT_ASYNC:
 				case ICM_AT_SYNC:
 				case ICM_AT_EXT:

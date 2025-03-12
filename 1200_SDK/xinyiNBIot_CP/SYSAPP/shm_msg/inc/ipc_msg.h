@@ -39,6 +39,9 @@ typedef enum
 	ICM_SOFT_RESET,		 /*!< 用于软件复位*/
 	ICM_AP_LOG,          /*!< 当CP核启动后，AP核的log经CP核的logview输出*/
 	ICM_COPY_AT,         /*用于CP非零拷贝方式上报URC,如"POWERDOWN"*/
+#if GNSS_EN
+	ICM_AP_GNSS_LOG,     /*AP核发送来的GNSS位置信息码流LOG，最终由logview提取位置信息*/
+#endif
 	ICM_MAX, /*!< MAX*/
 } ICM_flag;
 

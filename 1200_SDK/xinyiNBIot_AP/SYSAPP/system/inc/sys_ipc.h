@@ -49,6 +49,9 @@ typedef enum
 	ICM_SOFT_RESET,		 /*!< CP核业务执行的软复位API接口消息*/
 	ICM_AP_LOG,          /*!< 当CP核启动后，AP核的log通过CP核的logview输出*/
 	ICM_COPY_AT,         /*!< 用于非零拷贝方式上报URC,如"POWDOWN"*/
+#if GNSS_EN
+	ICM_AP_GNSS_LOG,     /*!< AP核发送的GNSS位置区码流log，最终由logview解析*/
+#endif
 	ICM_MAX,			 /*!< MAX*/
 } IPC_MessageID;
 

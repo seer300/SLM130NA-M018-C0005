@@ -42,6 +42,9 @@
 #include "xy_ftl.h"
 #include "at_uart.h"
 #include "mpu_protect.h"
+#if GNSS_EN
+#include "gnss_drv.h"
+#endif
 
 // hrc 26M时钟上电测量值，深睡唤醒需要保持住，以免多次测量
 #define FLASH_26MHRCCALI_TBL_LEN    4
@@ -688,6 +691,10 @@ __OPENCPU_FUNC void fac_nv_param_read()
 		HWREGB(BAK_MEM_XY_DUMP) = 1;
 	else
 		HWREGB(BAK_MEM_XY_DUMP) = 0;
+
+#if GNSS_EN
+	gnss_nv_read();
+#endif
 }
 
 extern void at_uart_wakup_init();
@@ -745,6 +752,11 @@ __OPENCPU_FUNC void SystemInit(void)
 		Get_Boot_Sub_Reason(),HWREGB(BAK_MEM_CP_UP_REASON),HWREG(BAK_MEM_CP_UP_SUBREASON),HWREG(0x40000000), HWREG(0x40000008));
 
 	EnablePrimask();
+
+#if GNSS_EN
+	extern void gnss_system_init();
+	gnss_system_init();
+#endif
 
 #if (MODULE_VER==0)
 	Fota_Reboot_Init();

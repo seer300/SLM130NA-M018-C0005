@@ -626,7 +626,14 @@ typedef struct
     uint8_t  at_parity;        //##0##,AT口奇偶校验位，0，无校验;1 EVEN校验；2：ODD校验。此nv参数为特殊客户功能定制使用。
     uint8_t  off_check;        //##0##&& OTP和FT有效参数值检查，产线上必须设为0
 
-    uint8_t padding11[4];
+#if GNSS_EN
+    uint8_t gnss_cold_start;        //##0## gnss冷启动标志，0：默认设置禁止冷启动使用热启动，1：使用冷启动
+    uint8_t gnss_bak_power_select;  //##0## gnss备电选择，0：内部IO供电，1：外部用户供电
+    uint8_t gnss_padding2;
+    uint8_t gnss_padding3;
+#else
+    uint8_t pennding11[4];
+#endif
 
 } softap_fac_nv_t;
 

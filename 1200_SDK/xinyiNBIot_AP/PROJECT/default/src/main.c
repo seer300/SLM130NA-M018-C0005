@@ -77,6 +77,10 @@ __RAM_FUNC int main(void)
 
         at_uart_recv_and_process();
 
+#if GNSS_EN
+        extern void gnss_recv_process();
+        gnss_recv_process();
+#endif
 
         CP_URC_Process();
 

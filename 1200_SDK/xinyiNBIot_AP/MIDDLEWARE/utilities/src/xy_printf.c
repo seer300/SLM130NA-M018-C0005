@@ -13,6 +13,11 @@
 
 #if (XY_LOG == 1)
 
+#if GNSS_EN
+/*GNSS的NMEA的码流log输出，以供logview抽取*/
+uint8_t g_NMEA_log = 0;
+#endif
+
 /*CP核最高支持921600，AP核最高支持230400*/
 HAL_CSP_HandleTypeDef csp_log_handle = {0};
 
@@ -111,6 +116,14 @@ void xy_printf_ap(char *pBuffer, int size)
 
 		*((uint16_t *)(log_head+4)) = size+18;
 		*((uint16_t *)(log_head+20)) = size;
+#if GNSS_EN
+		/*GNSS码流，需要修改模块ID*/
+		if(g_NMEA_log == 1)
+		{
+			*((uint16_t *)(log_head+8)) = 11; /*对应XY_GNSS_LOG*/
+			*((uint16_t *)(log_head+16)) = 25; /*将0x0D改为25(GNSS_LOG)*/
+		}
+#endif
 		HAL_CSP_Transmit(&csp_log_handle, (uint8_t *)log_head,24,1000);
 		HAL_CSP_Transmit(&csp_log_handle, (uint8_t *)pBuffer, (uint16_t)size,1000);
 		HAL_CSP_Transmit(&csp_log_handle, (uint8_t *)&log_tail,1,100);
@@ -180,6 +193,11 @@ __RAM_FUNC int _write(int fd, char *pBuffer, int size)
 		pMsg.len = 4;
 		pMsg.buf = &log;
 
+#if GNSS_EN
+		if(g_NMEA_log == 1)
+			pMsg.id = ICM_AP_GNSS_LOG;
+		else
+#endif
 			pMsg.id = ICM_AP_LOG;
 
 		if (IPC_WriteMessage(&pMsg) < 0)
@@ -223,6 +241,24 @@ __RAM_FUNC void xy_printf(const char *fmt, ...)
 	va_end(args);   //args指针置0
 	EnableInterrupt();
 }
+#if GNSS_EN
+/*GNSS的NMEA的码流log输出，以供logview抽取*/
+void xy_printf_NMEA(const char *fmt, ...)
+{
+	if(gLogDynamicOpen != 1)
+		return;
+	
+	DisableInterrupt();
+	g_NMEA_log = 1;
+	va_list args;
+	va_start(args, fmt);  //以传入的形参为内存基准
+	vprintf(fmt, args);
+	fflush(stdout);
+	va_end(args);   //args指针置0
+	g_NMEA_log = 0;
+	EnableInterrupt();
+}
+#endif
 #else
 __RAM_FUNC void xy_printf(const char *fmt, ...)
 {

@@ -498,6 +498,47 @@ uint64_t DeepSleep_Cal_SleepTime_Again()
 	}
 	
 #else
+#if GNSS_EN
+	//CP不支持快速恢复功能（包括opencpu形态、1200对标B0模组）
+	if(AP_FAST_RECOVERY_FUNCTION ==1)  //AP永远快速恢复，CP不快速恢复，8K维持供电（Opencpu表计）
+	{
+		g_platform_deepsleep_advance_ms = 250;
+		g_if_fast_recovery = 0;
+		// if(g_factory_nv->softap_fac_nv.bakmem_threshold != BAKMEM_8K_PWR_FORCE_ON)
+		// {
+		// 	xy_assert(0);
+		// }
+	}
+	else   //AP、CP均永远不快速恢复（1200对标B0模组）
+	{
+		if(g_factory_nv->softap_fac_nv.bakmem_threshold == BAKMEM_8K_PWR_FORCE_OFF)         //1200对标B0模组，睡眠时8K RetMem强制断电
+		{
+			g_platform_deepsleep_advance_ms = 250;
+			// 通知AP核
+			HWREGB(BAK_MEM_OFF_RETMEM_FLAG) = 1;
+		}
+		else if(g_factory_nv->softap_fac_nv.bakmem_threshold == BAKMEM_8K_PWR_FORCE_ON)    //支持，但暂时未配置该形态
+		{
+			g_platform_deepsleep_advance_ms = 250;
+		}
+		else   //支持，但暂时未配置该形态
+		{
+			if(Ps_Lpminfo.ullsleeptime_ms - (uint64_t)Ps_Lpminfo.deepsleep_advance_ms > g_dsleep_bakmem_threshold)
+			{
+				g_platform_deepsleep_advance_ms = 250;   //双核同时不快速恢复，且8K下电的提前量
+				// 通知AP核
+				HWREGB(BAK_MEM_OFF_RETMEM_FLAG) = 1;
+			}
+			else
+			{
+				g_platform_deepsleep_advance_ms = 250;   //双核同时不快速恢复，且8K维持供电的提前量
+				// 通知AP核
+				HWREGB(BAK_MEM_OFF_RETMEM_FLAG) = 0;
+			}
+		}
+		g_if_fast_recovery = 0;
+	}
+#else
 	//CP不支持快速恢复功能（包括opencpu形态、1200对标B0模组）
 	if(AP_FAST_RECOVERY_FUNCTION ==1)  //AP永远快速恢复，CP不快速恢复，8K维持供电（Opencpu表计）
 	{
@@ -537,7 +578,8 @@ uint64_t DeepSleep_Cal_SleepTime_Again()
 		}
 		g_if_fast_recovery = 0;
 	}
-  
+
+#endif
 
 #endif
 
