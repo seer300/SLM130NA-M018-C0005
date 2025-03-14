@@ -19,7 +19,7 @@ list(APPEND PRJ_DEF_LIST "FOTA_SUCC_REPORT=1")   #仅对OPENCPU产品有效，�
 
 list(APPEND PRJ_DEF_LIST "XY_DUMP=0")    #用于AP和CP断言等异常死机定位。设为1后，关闭看门狗，且死机时维持现场，以供在线JLINK查看。
 
-list(APPEND PRJ_DEF_LIST "XY_LOG=0")     #AP核打印输出控制宏，开启后会影响运行流程，产线或功耗测试必须设为0
+list(APPEND PRJ_DEF_LIST "XY_LOG=1")     #AP核打印输出控制宏，开启后会影响运行流程，产线或功耗测试必须设为0
 
 list(APPEND PRJ_DEF_LIST "XY_AT_CTL=0")  #芯翼的AP和CP核间通信的AT框架开关。0:关闭，常见于表计客户，必须配合at_uart_read接口使用；1:开启，常见于普通客户
 
@@ -32,11 +32,11 @@ list(APPEND PRJ_DEF_LIST "MPU_EN=0")     #设为1表示开启FLASH上禁止运�
 
 set(CONFIG_COMPILE_PROJECT_SELECT "default") # PROJECT文件夹下文件夹名"default""menci_demo""cloud_demo""meter_demo""water_meter_demo""gas_meter_demo"
 
-list(APPEND PRJ_DEF_LIST "XY_DEBUG=0")   #AP核调试代码编译宏，仅芯翼内部使用。产线或功耗测试必须设为0
+list(APPEND PRJ_DEF_LIST "XY_DEBUG=1")   #AP核调试代码编译宏，仅芯翼内部使用。产线或功耗测试必须设为0
 
 list(APPEND PRJ_DEF_LIST "BLE_EN=0")     #BLE功能开关
 
-list(APPEND PRJ_DEF_LIST "GNSS_EN=0")    #GNSS功能开关
+list(APPEND PRJ_DEF_LIST "GNSS_EN=1")    #GNSS功能开关
 
 if(${XY_SOC_VER} EQUAL 0)   #1200对标B0模组
 	list(APPEND PRJ_DEF_LIST "MODULE_VER=1")     #模组产品形态

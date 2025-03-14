@@ -11,6 +11,7 @@
 #include "xy_at_api.h"
 #include "xy_memmap.h"
 #include "gnss_api.h"
+#include "at_uart.h"
 
 
 
@@ -42,6 +43,14 @@ void gnss_on()
 	GNSS_UART_Init();
 }
 
+// GNSS模块上电 但不初始化芯翼UART串口 (便于使用外接USB串口调试)
+void gnss_on2()
+{
+    LPM_LOCK(STANDBY_GNSS_LOCK);
+	LPM_LOCK(DSLEEP_GNSS_LOCK);
+	gnss_pin_reset();
+}
+
 
 /*GNSS模块下电*/
 void gnss_off()
@@ -49,6 +58,12 @@ void gnss_off()
 	//发送下电命令
 	gnss_write_hex_stream("F1D90641050000000000034F64");
 	GNSS_UART_DeInit();
+	// 等待500毫秒 GNSS手册要求
+	HAL_Delay(500);
+
+	// 操作GPIO2断电  输出低电平
+	HAL_GPIO_WritePin(GPIO_PAD_NUM_2, GPIO_PIN_RESET);
+
     LPM_UNLOCK(STANDBY_GNSS_LOCK);
 	LPM_UNLOCK(DSLEEP_GNSS_LOCK);
 }

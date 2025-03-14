@@ -130,12 +130,12 @@ int at_GNSS_req(char *at_buf, char **prsp_cmd)
 			g_hex_test = 0;
 		}
 		/*后续废弃！调试cspuart串口波特率*/
-		else if (!strcmp(cmd, "UARTBAUD"))
-		{
-			int baud = 9600;
-			at_parse_param(",%d,",at_buf,&baud);
-			gnss_uartbaud_change(baud);
-		}
+		// else if (!strcmp(cmd, "UARTBAUD"))
+		// {
+		// 	int baud = 9600;
+		// 	at_parse_param(",%d,",at_buf,&baud);
+		// 	gnss_uartbaud_change(baud);
+		// }
 		/*AT+GNSS=ON[,<Interval period>]*/
 		else if (!strcmp(cmd, "ON"))
 		{
@@ -230,6 +230,12 @@ int at_GNSS_req(char *at_buf, char **prsp_cmd)
 		else if (!strcmp(cmd, "BOOT"))
 		{
 			gnss_boot_mode();
+		}
+		// 移除初始化的UART并重启 测试使用
+		else if (!strcmp(cmd, "OFFUART"))
+		{
+			gnss_off();
+			gnss_on2();
 		}
 		/*AT+GNSS=NMEALOG,<ON/OFF>    NMEA log输出开关0、1*/
 		else if (!strcmp(cmd, "NMEALOG"))

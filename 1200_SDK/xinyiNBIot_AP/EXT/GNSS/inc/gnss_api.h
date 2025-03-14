@@ -28,6 +28,7 @@ extern uint32_t g_period_sec;
 
 /*GNSS模块上电初始化。*/
 void gnss_on();
+void gnss_on2();
 
 
 /*GNSS模块下电*/
