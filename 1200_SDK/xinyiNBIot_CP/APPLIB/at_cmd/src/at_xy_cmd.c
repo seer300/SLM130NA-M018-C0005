@@ -1125,35 +1125,15 @@ int at_ATI_req(char *at_buf, char **prsp_cmd)
 	if(g_req_type==AT_CMD_ACTIVE)
 	{
 		*prsp_cmd = xy_malloc(128);
-		ATC_MSG_NBAND_R_CNF_STRU tNbandRcnf = {0};
-
-		if(ATC_AP_TRUE == xy_atc_interface_call("AT+NBAND?\r\n", NULL, (void*)&tNbandRcnf)){
-			if (tNbandRcnf.stSupportBandList.aucSuppBand[0] == 2)
-			{
-				// 美洲版
-				snprintf(*prsp_cmd, 128,
-					"\r\n%s\r\n%s\r\nRevision:%s_T%sS%s\r\n\r\nOK\r\n",
-					VENDOR_NAME,
-					PRODUCT_NAME, 
-					PRODUCT_NAME,
-					VERSION_INFO_NEW,
-					BUILD_DATE
-				);
-			}else{
-				// 欧亚非版
-				snprintf(*prsp_cmd, 128,
-					"\r\n%s\r\n%s\r\nRevision:%s_T%sS%s_E\r\n\r\nOK\r\n",
-					VENDOR_NAME,
-					PRODUCT_NAME,
-					PRODUCT_NAME,
-					VERSION_INFO_NEW,
-					BUILD_DATE
-				);
-			}
-		}else{
-			// 调用NBAND失败
-			snprintf(*prsp_cmd, 128, "\r\nERROR:NO NBAND INFO!\r\n");
-		}
+		// M021客户无需判断版本
+		snprintf(*prsp_cmd, 128,
+			"\r\n%s\r\n%s\r\nRevision:%s_T%sS%s\r\n\r\nOK\r\n",
+			VENDOR_NAME,
+			PRODUCT_NAME, 
+			PRODUCT_NAME,
+			VERSION_INFO_NEW,
+			BUILD_DATE
+		);
 	}
 	else
 	{
@@ -1168,37 +1148,15 @@ int at_SGSW_req(char *at_buf, char **prsp_cmd)
 	if(g_req_type==AT_CMD_ACTIVE)
 	{
 		*prsp_cmd = xy_malloc(128);
-		ATC_MSG_NBAND_R_CNF_STRU tNbandRcnf = {0};
-
-		if(ATC_AP_TRUE == xy_atc_interface_call("AT+NBAND?\r\n", NULL, (void*)&tNbandRcnf)){
-			xy_printf(0, PLATFORM, FATAL_LOG, "aucsuppBand[0]: %d", tNbandRcnf.stSupportBandList.aucSuppBand[0]);
-			if (tNbandRcnf.stSupportBandList.aucSuppBand[0] == 2)
-			{
-				// 美洲版
-				snprintf(*prsp_cmd, 128, "\r\n%s.%sT%sS%s_%s_%s\r\n\r\nOK\r\n",
-					PRODUCT_NAME,
-					BOARD_PATCH,
-					VERSION_INFO_NEW,
-					BUILD_DATE,
-					VERSION_DEV_TYPE,
-					MODULE_CHIP_NAME
-				);
-			}else{
-				// 欧亚非版
-				snprintf(*prsp_cmd, 128, "\r\n%s.%sT%sS%s_%s_%s_E\r\n\r\nOK\r\n",
-					PRODUCT_NAME,
-					BOARD_PATCH,
-					VERSION_INFO_NEW,
-					BUILD_DATE,
-					VERSION_DEV_TYPE,
-					MODULE_CHIP_NAME
-				);
-			}
-			
-		}else{
-			// 调用NBAND失败
-			snprintf(*prsp_cmd, 128, "\r\nERROR:NO NBAND INFO!\r\n");
-		}
+		// M021客户无需判断版本
+		snprintf(*prsp_cmd, 128, "\r\n%s.%sT%sS%s_%s_%s\r\n\r\nOK\r\n",
+			PRODUCT_NAME,
+			BOARD_PATCH,
+			VERSION_INFO_NEW,
+			BUILD_DATE,
+			VERSION_DEV_TYPE,
+			MODULE_CHIP_NAME
+		);
 	}
 	else
 	{

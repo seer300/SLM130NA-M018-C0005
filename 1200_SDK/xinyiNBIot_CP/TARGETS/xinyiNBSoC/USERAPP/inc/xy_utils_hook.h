@@ -9,7 +9,7 @@
 
 /********************************** 版本相关 **********************************/
 /* 设备型号，用户可自行更改 */
-#define PRODUCT_NAME         "SLM130-NA"
+#define PRODUCT_NAME         "HT-BC100X-EU"
 
 #define VENDOR_NAME          "MeiG"
 #define MODULE_CHIP_NAME     "XY1200S"
@@ -18,10 +18,10 @@
 
 
 #define BOARD_PATCH      	 "1.2.5.0"
-#define VERSION_DEV_TYPE	 "M018"
+#define VERSION_DEV_TYPE	 "M021"
 
-#define BUILD_DATE           "0102"
-#define VERSION_INFO_NEW	 "11"
+#define BUILD_DATE           "0315"
+#define VERSION_INFO_NEW	 "01"
 
 
 /********************************** 云业务相关 **********************************/
