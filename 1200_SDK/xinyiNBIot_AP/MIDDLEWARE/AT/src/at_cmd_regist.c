@@ -54,6 +54,11 @@ const at_cmd_t g_AT_cmd_list[] = {
 
 #endif
 
+#if SLED_EN
+	// 警示灯
+	{"SLED", at_SLED_req},
+#endif
+
 	{"ASSERT", at_ASSERT_req},
     {"SOCID", at_SOCID_req},
 	{"REGTEST", at_REGTEST_req},

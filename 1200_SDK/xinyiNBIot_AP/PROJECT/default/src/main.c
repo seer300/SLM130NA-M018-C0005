@@ -18,6 +18,12 @@
 #include "app_init.h"
 #include "mpu_protect.h"
 
+// 警示灯
+#if SLED_EN
+#include "user_sapin_light.h"
+#endif
+
+
 #define WDT_TIEMOUT_SEC                (2*60)
 
 /*非AON区域的外设(CSP1,CSP2,CSP3,TIMER2,ADC,UART2,I2C1,I2C2,SPI)必须按需启停，即XXX_Init-->传输-->XXX_Deinit，不得轻易在此函数中初始化，否则功耗会抬高*/
@@ -50,7 +56,20 @@ __RAM_FUNC int main(void)
     UTC_WDT_Init(UTC_WATCHDOG_TIME);
 #endif
 
+// 警示灯
+#if SLED_EN
 
+	// 上电开机后，拉高 hold 管脚，维持电源
+	McuGpioModeSet(POWER_HOLD_PIN, 0x00);
+	McuGpioWrite(POWER_HOLD_PIN, 1);
+
+	// key 输入检测管脚
+	McuGpioModeSet(POWER_KEY_PIN, 0x12);
+
+	// 灯控制初始化
+	SapinLight_Init();
+
+#endif
 
 	/*section方式注册的用户开机初始化函数执行*/
 	User_Startup_Init();
@@ -86,8 +105,12 @@ __RAM_FUNC int main(void)
 
         RC32k_Cali_Process();
 
-        Enter_LowPower_Mode(LPM_DSLEEP);
+        //Enter_LowPower_Mode(LPM_DSLEEP);
 
+        // 1. 不停检测 key 电平
+        // 2. 检测到 key 低电平，做延时，比如 5s（长按）
+        // 3. 时间达到长按，进入关机流程
+        // 4. 死循环拉低 hold 直到没电
     }
 }
 

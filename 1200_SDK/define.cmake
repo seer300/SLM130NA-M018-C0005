@@ -38,6 +38,8 @@ list(APPEND PRJ_DEF_LIST "BLE_EN=0")     #BLE功能开关
 
 list(APPEND PRJ_DEF_LIST "GNSS_EN=1")    #GNSS功能开关
 
+list(APPEND PRJ_DEF_LIST "SLED_EN=1")    #警示灯-控灯逻辑 功能开关
+
 if(${XY_SOC_VER} EQUAL 0)   #1200对标B0模组
 	list(APPEND PRJ_DEF_LIST "MODULE_VER=1")     #模组产品形态
 	list(APPEND PRJ_DEF_LIST "AT_WAKEUP_SUPPORT=0")  #是否支持AT唤醒。0：不支持，1：支持; OPENCPU版本只能选1

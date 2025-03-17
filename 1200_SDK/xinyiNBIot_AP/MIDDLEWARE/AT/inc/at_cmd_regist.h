@@ -43,3 +43,8 @@ int at_QSCLK_req(char *param,char **rsp_cmd);
 int at_QPOWD_req(char *param,char **rsp_cmd);
 int at_QRST_req2(char *param,char **rsp_cmd);
 int at_IPR_req2(char  *param, char **rsp_cmd);
+
+// 警示灯
+#if SLED_EN
+int at_SLED_req(char *at_buf, char **prsp_cmd);
+#endif
