@@ -6,7 +6,11 @@
 设置为`12`  
 12 -- 引脚低电平大于 160ms 唤醒，大于 5.12s 复位。
 
-
-# 临时修改 - `factoryNV - 关闭深睡.img`
-## deepsleep_enable 
+## deepsleep_enable
 设置为0，代表关闭深睡 (将不会进入POWERDOWN模式)  
+
+## ucPsmEnableFlg
+设置为0，默认关闭PSM模式  
+
+## ucEdrxEnableFlg
+设置为0，默认关闭EDRX模式  
