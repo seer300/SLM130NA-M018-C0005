@@ -288,14 +288,14 @@ __RAM_FUNC void gnss_power_clock_deinit()
 
 /**
  * @brief gnss初始化函数
- * 开机初始化时调用  调用处在xinyiNBIot_AP\SYSAPP\system\src\system.c		  
+ * 开机初始化时调用  调用处在xinyiNBIot_AP\SYSAPP\system\src\system.c
  * 
  */
 extern void gnss_write_hex_stream(char *hex_str);
 static uint8_t g_gnss_cold_start = 0;
 void gnss_system_init()
 {
-	Send_AT_to_Ext("\r\ngnss_system_init run\r\n");
+	Send_AT_to_Ext("\r\n+GNSS: ON\r\n");
 	// if((g_gnss_cold_start != 0) || (Get_Boot_Reason() != WAKEUP_DSLEEP))
 	// {
 	// 	// 不属于深睡唤醒时  即首次开机上电
@@ -357,7 +357,7 @@ void gnss_deepsleep_recover()
  */
 __RAM_FUNC void gnss_deepsleep_manage()
 {
-	Send_AT_to_Ext("\r\ngnss_deepsleep_manage run!\r\n");
+	Send_AT_to_Ext("\r\n+GNSS: OFF\r\n");
 	// if(g_gnss_cold_start != 0)
 	// 	gnss_power_clock_deinit();
 	// else
