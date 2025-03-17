@@ -14,6 +14,7 @@
 #if GNSS_EN
 #include "gnss_at.h"
 #endif
+#include "hal_adc.h"
 
 
 #define AT_DEEPSLEEP_LOCK USER_DSLEEP_LOCK1
@@ -88,6 +89,8 @@ const at_cmd_t g_AT_cmd_list[] = {
 	{"GNSS",at_GNSS_req},//gnss大集成调试命令集
 #endif
 
+	// ADC电池电压检测命令  检测HAL_ADC_AUX_ADC2引脚
+	{"ADC2",at_ADC2_req},
 
 	/*仅供客户演示使用，未达商用*/
 	// {"SVDCFG", at_SVDCFG_req},
@@ -539,3 +542,27 @@ int Match_AT_Cmd(char *buf)
 }
 
 
+/*AT+ADC2  ADC2通道电压检测 */
+int at_ADC2_req(char *at_buf, char **prsp_cmd)
+{
+	UNUSED_ARG(at_buf);
+	UNUSED_ARG(prsp_cmd);
+	char rsp[20];
+	int mv = 0;
+
+	if (g_cmd_type == AT_CMD_ACTIVE)
+	{
+		// 组装ADC查询结构体
+		HAL_ADC_HandleTypeDef adc_handle = {0};
+		adc_handle.Channel= HAL_ADC_AUX_ADC2;
+
+		mv = HAL_ADC_GetValue(&adc_handle);
+
+		sprintf(rsp, "\r\n+ADC2: %dmV, x4:%dmV\r\n", mv, (mv*4));
+		Send_AT_to_Ext(rsp);
+	}else{
+		return  (XY_ERR_PARAM_INVALID);
+	}
+
+	return XY_OK;
+}

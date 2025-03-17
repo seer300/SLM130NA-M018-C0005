@@ -205,16 +205,16 @@ int at_GNSS_req(char *at_buf, char **prsp_cmd)
 		}
 
 		/*AT+GNSS=RATE,<gnss baud rate>   GNSS对端波特率设置，115200/9600*/
-		else if (!strcmp(cmd, "RATE"))
-		{
-			int rate = -1;
-			at_parse_param(",%d,",at_buf,&rate);
+		// else if (!strcmp(cmd, "RATE"))
+		// {
+		// 	int rate = -1;
+		// 	at_parse_param(",%d,",at_buf,&rate);
 
-			if(rate==115200 || rate==9600)		
-				gnss_set_baudrate(rate);
-			else
-				return XY_ERR_PARAM_INVALID;
-		}
+		// 	if(rate==115200 || rate==9600)		
+		// 		gnss_set_baudrate(rate);
+		// 	else
+		// 		return XY_ERR_PARAM_INVALID;
+		// }
 
 		/*AT+GNSS=SAVE  保存NV配置，仅限FLASH版本*/
 		else if (!strcmp(cmd, "SAVE"))

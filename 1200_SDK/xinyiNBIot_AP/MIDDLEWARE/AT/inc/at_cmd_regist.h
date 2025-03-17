@@ -48,3 +48,6 @@ int at_IPR_req2(char  *param, char **rsp_cmd);
 #if SLED_EN
 int at_SLED_req(char *at_buf, char **prsp_cmd);
 #endif
+
+// ADC2电池电压检测
+int at_ADC2_req(char *at_buf, char **prsp_cmd);
