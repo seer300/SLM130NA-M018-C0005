@@ -127,7 +127,7 @@ void gnss_recv_process()
 				if(hex_stream_test_proc(msg_node->payload,msg_node->length) == 0)
 		        {
 		        	/*需要解析GNSS码流，然后按照标准AT命令进行URC封装*/
-					gnss_stream_proc(msg_node->payload,msg_node->length);
+					// gnss_stream_proc(msg_node->payload,msg_node->length);
 		        }
 				
 				if(g_gnss_log_enable)

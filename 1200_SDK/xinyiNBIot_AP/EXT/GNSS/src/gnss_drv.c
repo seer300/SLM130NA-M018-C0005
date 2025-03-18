@@ -51,7 +51,7 @@ __RAM_FUNC void HAL_CSP2_RxCpltCallback(HAL_CSP_HandleTypeDef *hcsp)
     send_msg_to_mainctl(GNSS_STREAM,(void *)g_gnss_data, gnss_uart_handl->RxXferCount);
 
 	// 处理接收到的数据（例如打印）
-	// xy_printf("----HAL_CSP2_RxCpltCallback Received %d %d", hcsp->RxXferSize, hcsp->RxXferCount);
+	xy_printf("----HAL_CSP2_RxCpltCallback Received %d %d", hcsp->RxXferSize, hcsp->RxXferCount);
 	
 	// 重新启动接收（维持持续监听）
 	HAL_CSP_Receive_IT(gnss_uart_handl, g_gnss_data, GNSS_RCV_MAX_LEN, GNSS_UART_MAX_TIMEOUT); //继续下一次接收
@@ -125,8 +125,9 @@ void GNSS_UART_DeInit()
 		g_gnss_data = NULL;
 	}
 
-	McuGpioModeSet(GNSS_TX_PIN, 0x00), McuGpioWrite(GNSS_TX_PIN, 0);
-	McuGpioModeSet(GNSS_RX_PIN, 0x00), McuGpioWrite(GNSS_RX_PIN, 0);
+	// 配置TX RX脚浮空 避免影响
+	McuGpioModeSet(GNSS_RX_PIN, 0x11);
+	McuGpioModeSet(GNSS_TX_PIN, 0x11);
 }
 
 

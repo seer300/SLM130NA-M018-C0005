@@ -63,6 +63,8 @@ void gnss_off()
 
 	// 操作GPIO2断电  输出低电平
 	HAL_GPIO_WritePin(GPIO_PAD_NUM_2, GPIO_PIN_RESET);
+	// STX设置高阻态
+	McuGpioModeSet(GPIO_PAD_NUM_20, 0x24);
 
     LPM_UNLOCK(STANDBY_GNSS_LOCK);
 	LPM_UNLOCK(DSLEEP_GNSS_LOCK);
