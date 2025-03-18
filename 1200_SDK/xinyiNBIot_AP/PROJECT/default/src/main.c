@@ -21,6 +21,7 @@
 // 警示灯
 #if SLED_EN
 #include "user_sapin_light.h"
+#include "gnss_api.h"
 #endif
 
 
@@ -43,7 +44,12 @@ __RAM_FUNC void User_Init_FastRecovery(void)
 
 
 __RAM_FUNC int main(void)
-{     
+{
+// 警示灯
+#if SLED_EN
+    int keyCount = 0;
+#endif
+
     SystemInit();
 
     FastRecov_Init_Hook_Regist(User_Init_FastRecovery);
@@ -107,10 +113,41 @@ __RAM_FUNC int main(void)
 
         //Enter_LowPower_Mode(LPM_DSLEEP);
 
+        // 警示灯
+#if SLED_EN
         // 1. 不停检测 key 电平
-        // 2. 检测到 key 低电平，做延时，比如 5s（长按）
-        // 3. 时间达到长按，进入关机流程
-        // 4. 死循环拉低 hold 直到没电
+        if (McuGpioRead(POWER_KEY_PIN) == 0)
+        {
+            // 2. 检测到 key 低电平，做延时，比如 5s（长按）
+            HAL_Delay(10);
+
+            keyCount++;
+            if (keyCount > (((5 * 1000) / 10) - 1))
+            {
+                keyCount = 0;
+
+                // 3. 时间达到长按，进入关机流程
+                SapinLight_Start(SapinLight_Type_Get() == 1 ? 0 : 3);
+
+                gnss_off();
+
+                // 4. 死循环拉低 hold 直到没电
+                while (true)
+                {
+                    McuGpioWrite(POWER_HOLD_PIN, 0);
+
+                    /*喂狗耗时长，频率过快会造成功耗抬高*/
+		            UTC_WDT_Refresh(UTC_WATCHDOG_TIME);
+
+                    HAL_Delay(100);
+                }
+            }
+        }
+        else
+        {
+            keyCount = 0;
+        }
+#endif
     }
 }
 

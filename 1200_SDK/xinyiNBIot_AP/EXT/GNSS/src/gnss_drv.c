@@ -17,6 +17,7 @@
 #include "gnss_msg.h"
 #include "csp.h"
 #include "at_uart.h"
+#include "hal_uart.h"
 
 // 芯翼GPIO10接 华大TX
 #define GNSS_RX_PIN GPIO_PAD_NUM_10
@@ -47,14 +48,38 @@ __RAM_FUNC void HAL_CSP2_ErrorCallback(HAL_CSP_HandleTypeDef *hcsp)
  */
 __RAM_FUNC void HAL_CSP2_RxCpltCallback(HAL_CSP_HandleTypeDef *hcsp)
 {
-    // (void)hcsp;
-    send_msg_to_mainctl(GNSS_STREAM,(void *)g_gnss_data, gnss_uart_handl->RxXferCount);
+    // // (void)hcsp;
+    // send_msg_to_mainctl(GNSS_STREAM,(void *)g_gnss_data, gnss_uart_handl->RxXferCount);
 
-	// 处理接收到的数据（例如打印）
-	xy_printf("----HAL_CSP2_RxCpltCallback Received %d %d", hcsp->RxXferSize, hcsp->RxXferCount);
+	// // 处理接收到的数据（例如打印）
+	// // xy_printf("----HAL_CSP2_RxCpltCallback Received %d %d", hcsp->RxXferSize, hcsp->RxXferCount);
 	
-	// 重新启动接收（维持持续监听）
-	HAL_CSP_Receive_IT(gnss_uart_handl, g_gnss_data, GNSS_RCV_MAX_LEN, GNSS_UART_MAX_TIMEOUT); //继续下一次接收
+	// // 重新启动接收（维持持续监听）
+	// HAL_CSP_Receive_IT(gnss_uart_handl, g_gnss_data, GNSS_RCV_MAX_LEN, GNSS_UART_MAX_TIMEOUT); //继续下一次接收
+
+	if (hcsp->RxState == HAL_CSP_STATE_READY)
+	{
+		send_msg_to_mainctl(GNSS_STREAM, (void *)g_gnss_data, hcsp->RxXferCount);
+
+		// // 中断数据已就绪，处理
+		// __HAL_LOCK_RX(hcsp);
+
+		// hcsp->RxState = HAL_CSP_STATE_BUSY;
+		// hcsp->ErrorCode = HAL_CSP_ERROR_NONE;
+		// hcsp->pRxBuffPtr = (uint8_t *)g_gnss_data;
+		// hcsp->RxXferSize = GNSS_RCV_MAX_LEN;
+		// hcsp->RxXferCount = 0;
+
+		// __HAL_UNLOCK_RX(hcsp);
+
+		// //清除RXFIFO
+		// CSP_RXFifoClear(hcsp->Instance);
+
+		// //清除所有中断标志位
+		// CSP_IntClear(hcsp->Instance, CSP_INT_ALL);
+
+		HAL_CSP_Receive_IT(hcsp, g_gnss_data, GNSS_RCV_MAX_LEN, GNSS_UART_MAX_TIMEOUT); //继续下一次接收
+	}
 }
 
 

@@ -15,14 +15,14 @@
 #include "gnss_api.h"
 #include "at_uart.h"
 
-
+#include "gnss_parse.h"
 
 
 uint8_t g_gnss_timeout = 0; /*GNSS周期性唤醒定位超时标记，需要执行上电定位*/
 uint32_t g_sat_num = 0; /*参与定位的有效卫星数*/
 int g_positioned = 0;   /*1表示已定位成功*/
 
-
+GNSS_Info_TypeDef gnss_datas = { 0 };
 
 
 
@@ -125,10 +125,22 @@ void gnss_recv_process()
 			case GNSS_STREAM:  /*NMEA的log输出需要调用xy_printf_NMEA*/
 				
 				if(hex_stream_test_proc(msg_node->payload,msg_node->length) == 0)
-		        {
-		        	/*需要解析GNSS码流，然后按照标准AT命令进行URC封装*/
-					// gnss_stream_proc(msg_node->payload,msg_node->length);
-		        }
+				{
+					/*需要解析GNSS码流，然后按照标准AT命令进行URC封装*/
+					//gnss_stream_proc(msg_node->payload,msg_node->length);
+
+					if (GNSS_Analysis(&gnss_datas, (const char *)msg_node->payload, (uint32_t)msg_node->length) == 0)
+					{
+						if (gnss_datas.RMC.IsEffectivePositioning != 0)
+						{
+							// 有效定位
+							xy_printf("[GNSS] (RMC) UTC: %d/%d/%d %02d:%02d:%02d, Longitude: %.5f, Latitude: %.5f",
+								gnss_datas.RMC.Date.Date, gnss_datas.RMC.Date.Month, gnss_datas.RMC.Date.Year,
+								gnss_datas.RMC.Time.Hour, gnss_datas.RMC.Time.Minute, gnss_datas.RMC.Time.Second,
+								gnss_datas.RMC.Position.Longitude.Value, gnss_datas.RMC.Position.Latitude.Value);
+						}
+					}
+				}
 				
 				if(g_gnss_log_enable)
 				{

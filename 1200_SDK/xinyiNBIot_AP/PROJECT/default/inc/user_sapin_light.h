@@ -16,7 +16,7 @@
 // ------------------------------
 // EVB
 // #define POWER_KEY_PIN                            MCU_GPIO21
-// #define POWER_HOLD_PIN                           MCU_GPIO14
+// #define POWER_HOLD_PIN                           MCU_GPIO7  // 14
 // #define LIGHT_CTRL_PIN                           MCU_GPIO5
 
 
