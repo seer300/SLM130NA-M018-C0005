@@ -547,15 +547,17 @@ int at_ADC2_req(char *at_buf, char **prsp_cmd)
 {
 	UNUSED_ARG(at_buf);
 	UNUSED_ARG(prsp_cmd);
-	char rsp[20];
+	char rsp[40];
+	int adc = 0;
 
 	if (g_cmd_type == AT_CMD_ACTIVE)
 	{
 		// 组装ADC查询结构体
 		HAL_ADC_HandleTypeDef adc_handle = {0};
 		adc_handle.Channel= HAL_ADC_AUX_ADC2;
+		adc = HAL_ADC_GetValue(&adc_handle);
 
-		sprintf(rsp, "\r\n+ADC2: %dmV\r\n",HAL_ADC_GetValue(&adc_handle));
+		sprintf(rsp, "\r\n+ADC2: %dmV, x4:%dmV\r\n", adc, (adc*4));
 		Send_AT_to_Ext(rsp);
 	}else{
 		return  (XY_ERR_PARAM_INVALID);
