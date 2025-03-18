@@ -207,23 +207,71 @@ void gnss_SVEPH_enable(int enable)
 		gnss_write_hex_stream("F1D906100100011862");
 }
 
-/*制式模式，0:gps;1:beidou;2:gps+beidou*/
+/*
+	制式模式设置
+	By: MG-PZQ 2025-3-18
+*/
 void gnss_set_mode(int mode)
 {
-	/*gps*/
+	/*单 GPS L1 模式*/
 	if(mode == 0)
 	{
 		gnss_write_hex_stream("F1D9060C04000100000017A0");
 	}
-	/*beidou*/
+	/*单GPS L1+L5*/
 	else if(mode == 1)
+	{
+		gnss_write_hex_stream("F1D9060C04000102000019A6");
+	}
+	/*单 BD B1I 模式*/
+	else if(mode == 2)
 	{
 		gnss_write_hex_stream("F1D9060C0400040000001AAC");
 	}
-	/*gps + beidou*/
-	else if(mode == 2)
+	// 单BD B1C
+	else if(mode == 3)
+	{
+		gnss_write_hex_stream("F1D9060C040000400000565C");
+	}
+	// 单BD B1I+B1C
+	else if(mode == 4)
+	{
+		gnss_write_hex_stream("F1D9060C0400044000005A6C");
+	}
+	// 单BD B1I+B2a
+	else if(mode == 5)
+	{
+		gnss_write_hex_stream("F1D9060C0400048000009A2C");
+	}
+	// 单BD B1I+B1C+B2A
+	else if(mode == 6)
+	{
+		gnss_write_hex_stream("F1D9060C040004C00000DAEC");
+	}
+	// GPS+Beidou 单频模式
+	else if(mode == 7)
 	{
 		gnss_write_hex_stream("F1D9060C0400050000001BB0");
+	}
+	// GPS+BD 双频模式
+	else if(mode == 8)
+	{
+		gnss_write_hex_stream("F1D9060C040005C20000DDF6");
+	}
+	// 单Galileo E1
+	else if(mode == 9)
+	{
+		gnss_write_hex_stream("F1D9060C04001000000026DC");
+	}
+	// 单Galileo E1+E5A
+	else if(mode == 10)
+	{
+		gnss_write_hex_stream("F1D9060C04001000100036FC");
+	}
+	// 单Glonass
+	else if(mode == 11)
+	{
+		gnss_write_hex_stream("F1D9060C04000200000018A4");
 	}
 }
 

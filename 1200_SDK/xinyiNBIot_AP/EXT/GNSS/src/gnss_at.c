@@ -192,13 +192,16 @@ int at_GNSS_req(char *at_buf, char **prsp_cmd)
 		{
 		}
 
-		/*AT+GNSS=MODE,<gps/beidou mode>   制式模式，0:gps;1:beidou;2:gps+beidou*/
+		/*AT+GNSS=MODE,<mode>  切换GNSS导航模式（制式模式）*/
 		else if (!strcmp(cmd, "MODE"))
 		{
 			int mode = -1;
 			at_parse_param(",%d,",at_buf,&mode);
 
-			if(mode==0 || mode==1 || mode==2)		
+			if(mode==0 || mode==1 || mode==2 || 
+			   mode==3 || mode==4 || mode==5 || 
+			   mode==6 || mode==7 || mode==8 || 
+			   mode==9 || mode==10 || mode==11)
 				gnss_set_mode(mode);
 			else
 				return XY_ERR_PARAM_INVALID;
