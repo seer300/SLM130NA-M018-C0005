@@ -8,6 +8,16 @@ get_sub_header_dirs(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR})
 
 add_subdirectory_if_exist(xy_lib)
 
+foreach(def ${PRJ_DEF_LIST})
+    if(${def} MATCHES "GNSS_EN")
+    string(REGEX MATCH "[0-9]+" GNSS_EN ${def})
+    endif()
+endforeach()
+
+if(${GNSS_EN} EQUAL 1)
+    change_section_config(${TARGET_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/HAL/src/hal_csp.c" FALSE)
+endif()
+
 set(LIBRARIES ${LIBRARIES} PARENT_SCOPE)
 set(PRJ_SRC_LIST ${PRJ_SRC_LIST} ${C_SOURCES} PARENT_SCOPE)
 
