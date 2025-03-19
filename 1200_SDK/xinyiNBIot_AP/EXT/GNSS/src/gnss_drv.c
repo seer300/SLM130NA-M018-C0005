@@ -451,3 +451,19 @@ void gnss_boot_mode()
     // 释放 PRTRG 变成高阻态
     McuGpioModeSet(GNSS_PRTRG, 0x24);
 }
+
+/**
+ * GNSS芯片退出低功耗模式
+ * 通过拉低PRRSTX信号后释放唤醒
+ * By: MG-PZQ 2025-3-19
+ */
+void gnss_exit_lpm_mode(){
+	//PRRSTX 推挽输出模式 输出低电平
+    McuGpioModeSet(GNSS_PRRSTX, 0x00);
+    McuGpioWrite(GNSS_PRRSTX, 0);
+
+	HAL_Delay(100);
+
+	// 重新拉高
+	McuGpioWrite(GNSS_PRRSTX, 1);
+}

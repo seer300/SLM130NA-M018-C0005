@@ -35,6 +35,7 @@ void gnss_main_power_init();
 void gnss_main_power_deinit();
 void GNSS_UART_Init();
 void gnss_boot_mode();
+void gnss_exit_lpm_mode();
 
 int write_to_gnss(uint8_t*buf, int size);
 

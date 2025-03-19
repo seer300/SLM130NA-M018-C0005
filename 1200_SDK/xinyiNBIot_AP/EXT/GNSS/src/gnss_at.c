@@ -229,6 +229,10 @@ int at_GNSS_req(char *at_buf, char **prsp_cmd)
 		{
 			gnss_set_lpm();
 		}
+		else if (!strcmp(cmd, "EXITLPM"))
+		{
+			gnss_exit_lpm();
+		}
 		/*AT+GNSS=BOOT  GNSS进入BOOT模式下载固件*/
 		else if (!strcmp(cmd, "BOOT"))
 		{

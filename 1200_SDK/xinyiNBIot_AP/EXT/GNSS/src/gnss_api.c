@@ -309,3 +309,8 @@ void gnss_set_lpm()
 	gnss_write_hex_stream("F1D906410500FFFFFF7F03CB56");
 }
 
+// 退出低功耗模式
+void gnss_exit_lpm()
+{
+	gnss_exit_lpm_mode();
+}

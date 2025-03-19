@@ -98,3 +98,5 @@ void gnss_query_version();
 
 /*低功耗模式，休眠电流达到3.3V@8.4uA。通过拉低PRRSTX信号后释放唤醒*/
 void gnss_set_lpm();
+
+void gnss_exit_lpm();
