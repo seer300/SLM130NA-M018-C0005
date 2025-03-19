@@ -37,8 +37,8 @@ void gnss_write_hex_stream(char *hex_str)
 /*GNSS模块上电初始化。*/
 void gnss_on()
 {
-    LPM_LOCK(STANDBY_GNSS_LOCK);
-	LPM_LOCK(DSLEEP_GNSS_LOCK);
+    // LPM_LOCK(STANDBY_GNSS_LOCK);
+	// LPM_LOCK(DSLEEP_GNSS_LOCK);
 	gnss_pin_reset();
 	GNSS_UART_Init();
 }
@@ -46,8 +46,8 @@ void gnss_on()
 // GNSS模块上电 但不初始化芯翼UART串口 (便于使用外接USB串口调试)
 void gnss_on2()
 {
-    LPM_LOCK(STANDBY_GNSS_LOCK);
-	LPM_LOCK(DSLEEP_GNSS_LOCK);
+    // LPM_LOCK(STANDBY_GNSS_LOCK);
+	// LPM_LOCK(DSLEEP_GNSS_LOCK);
 	gnss_pin_reset();
 }
 
@@ -66,8 +66,8 @@ void gnss_off()
 	// STX设置高阻态
 	McuGpioModeSet(GPIO_PAD_NUM_20, 0x24);
 
-    LPM_UNLOCK(STANDBY_GNSS_LOCK);
-	LPM_UNLOCK(DSLEEP_GNSS_LOCK);
+    // LPM_UNLOCK(STANDBY_GNSS_LOCK);
+	// LPM_UNLOCK(DSLEEP_GNSS_LOCK);
 }
 
 /*恢复出厂设置*/
