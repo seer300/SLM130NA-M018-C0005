@@ -27,3 +27,5 @@
 extern void SapinLight_Start(int t);
 extern int SapinLight_Type_Get(void);
 extern void SapinLight_Init(void);
+
+extern void SapinLight_HoldPinInit(void);

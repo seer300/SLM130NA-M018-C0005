@@ -1,5 +1,5 @@
-#ifndef _handler_gps_h
-#define _handler_gps_h
+#ifndef _gnss_parse_h
+#define _gnss_parse_h
 
 /**
   ****************************** Support C++ **********************************
@@ -32,6 +32,12 @@ extern "C"{
 
 #define get_float_value( str )                   atof((const char *)str)
 #define get_int_value( str )                     atoi((const char *)str)
+
+/******************************************************************************
+                                   变量定义
+******************************************************************************/
+
+
 
 /******************************************************************************
                              定义GPS数据帧信息结构
@@ -250,6 +256,9 @@ typedef struct
 /******************************************************************************
                                外部调用功能函数
 ******************************************************************************/
+
+extern GNSS_Info_TypeDef gnss_datas;
+
 
 int GNSS_CheckDataInvalid(const char *src);
 void GNSS_LatitudeLongitudeConversion(double Value, double *pValue, uint32_t *Degree, uint32_t *Cent, double *Second);

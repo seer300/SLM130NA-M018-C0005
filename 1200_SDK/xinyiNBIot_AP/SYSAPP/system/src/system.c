@@ -737,6 +737,12 @@ __OPENCPU_FUNC void SystemInit(void)
 
 	Sdk_Hardware_Init();
 	xy_print_uart_Init(XY_LOGVIEW_AP_RATE);
+
+	// 警示灯
+#if SLED_EN
+	extern void SapinLight_HoldPinInit(void);
+	SapinLight_HoldPinInit();
+#endif
 	
 	extern void save_up_dbg_into(int reason,int subreason);
 	save_up_dbg_into(Get_Boot_Reason(),Get_Boot_Sub_Reason());

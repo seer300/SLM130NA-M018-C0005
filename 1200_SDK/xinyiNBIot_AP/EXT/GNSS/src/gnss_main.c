@@ -150,7 +150,6 @@ void gnss_recv_process()
 					xy_printf_NMEA("%s", stream);
 					xy_free(stream);
 				}
-
 				break;
 
 			default:

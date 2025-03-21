@@ -16,6 +16,7 @@
 
 
 #include "user_sapin_light.h"
+#include "gnss_parse.h"
 
 /*
 本文件为 西班牙-警示灯 项目使用
@@ -130,6 +131,8 @@ void SapinLight_Start(int t)
         }
         else
         {
+            Timer_DeleteEvent(SLIGHT_TIMER_ID);
+
             McuGpioWrite(LIGHT_CTRL_PIN, sLightCtrlType == 2 ? 1 : 0);
         }
     }
@@ -162,3 +165,12 @@ void SapinLight_Init(void)
     // 上电后，直接启动闪灯
     SapinLight_Start(1);
 }
+
+// Hold 管脚
+void SapinLight_HoldPinInit(void)
+{
+    // 上电开机后，拉高 hold 管脚，维持电源
+	McuGpioModeSet(POWER_HOLD_PIN, 0x00);
+	McuGpioWrite(POWER_HOLD_PIN, 1);
+}
+

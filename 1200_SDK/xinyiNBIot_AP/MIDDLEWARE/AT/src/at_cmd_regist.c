@@ -547,8 +547,8 @@ int at_ADC2_req(char *at_buf, char **prsp_cmd)
 {
 	UNUSED_ARG(at_buf);
 	UNUSED_ARG(prsp_cmd);
-	char rsp[40];
-	int adc = 0;
+	char rsp[64];
+	int adc = 0, dec = 0;
 
 	if (g_cmd_type == AT_CMD_ACTIVE)
 	{
@@ -556,8 +556,10 @@ int at_ADC2_req(char *at_buf, char **prsp_cmd)
 		HAL_ADC_HandleTypeDef adc_handle = {0};
 		adc_handle.Channel= HAL_ADC_AUX_ADC2;
 		adc = HAL_ADC_GetValue(&adc_handle);
+		dec = adc - 22;
 
-		sprintf(rsp, "\r\n+ADC2: %dmV, x4:%dmV\r\n", adc, (adc*4));
+		//sprintf(rsp, "\r\n+ADC2: %dmV, x4:%dmV\r\n", adc, (adc*4));
+		sprintf(rsp, "\r\n+ADC2: %dmV, Dec: %dmV, Decx4:%dmV\r\n", adc, dec, (dec*4));
 		Send_AT_to_Ext(rsp);
 	}else{
 		return  (XY_ERR_PARAM_INVALID);
