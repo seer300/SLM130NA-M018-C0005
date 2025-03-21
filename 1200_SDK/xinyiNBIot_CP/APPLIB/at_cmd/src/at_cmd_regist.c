@@ -10,6 +10,7 @@
 #include "at_worklock.h"
 #include "at_xy_cmd.h"
 #include "cloud_proxy.h"
+#include "at_m021_api.h"
 
 
 #if MOBILE_VER
@@ -383,6 +384,13 @@ const struct at_serv_proc_e at_basic_req[] = {
 #endif
 	{"NGSEARFCN", at_ngsearfcn_req},
 	{"MGSLEEP", at_mgsleep_req},
+
+	// M021 西班牙警示灯项目定制指令
+	// iotDataReady类型报文发送
+	{"IOTRWADY", at_IOTRWADY_req},
+	// Protocol A 类型报文发送
+	{"IOTSEND", at_IOTSEND_req},
+
 	{0, 0} // can not delete!!!
 };
 struct at_serv_proc_e *g_at_basic_req = at_basic_req;
