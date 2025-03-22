@@ -126,14 +126,17 @@ int at_SOCKCONN_BC95_req(char *at_buf, char **prsp_cmd)
 		//write_to_at_uart(report_buf,strlen(report_buf));
 		//memset(report_buf,0,32);
 
+		// 创建一个计时器  30秒后启动
 		call_socket_delay(SOCK_TCP_CTL_TIMEOUT,param.id,SOCKT_TIMEOUT_30S,0);
 
 		if (socket_connect(&param) != XY_OK)
 		{
+			// 清除上面创建的计时器
 			call_socket_delay(SOCK_CANCEL_CHECK,param.id,SOCKT_TIMEOUT_30S,0);
 			//xy_free(report_buf);
 			return ATERR_NOT_NET_CONNECT;
 		}
+		// 清除上面创建的计时器
 		call_socket_delay(SOCK_CANCEL_CHECK,param.id,SOCKT_TIMEOUT_30S,0);
 		
 		//sprintf(report_buf, "\r\n+NSOCO:%d\r\n",param.id);

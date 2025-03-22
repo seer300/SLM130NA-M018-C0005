@@ -737,6 +737,8 @@ int socket_connect(socket_conn_param_t* arg)
     if ((dns_ret = getaddrinfo(ctx->remote_ip, port_str, &hint, &result)) != 0)
     {
         xy_printf(0,XYAPP, WARN_LOG, "[sock conn]socket id(%d) getaddrinfo err:%d", id, dns_ret);
+        // BUG fix: 域名解析DNS失败 需要关闭sockect连接
+        del_socket_ctx_by_index(id, false);
         return XY_Err_DnsFail;
     }
 

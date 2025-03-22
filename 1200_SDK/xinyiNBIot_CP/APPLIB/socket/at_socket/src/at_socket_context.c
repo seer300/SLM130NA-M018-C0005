@@ -200,6 +200,7 @@ int del_socket_ctx_by_index(uint8_t idx, bool isquit)
 			xy_free(g_socket_ctx[idx]->remote_ip);
 
 		del_allsnnode_by_socketid(g_socket_ctx[idx]->sock_id);
+		// 通知AT口socket创建结果
 		at_SOCKCLZ_URC(g_socket_ctx[idx]->sock_id, isquit);
 		xy_free(g_socket_ctx[idx]);
         g_socket_ctx[idx] = NULL;
